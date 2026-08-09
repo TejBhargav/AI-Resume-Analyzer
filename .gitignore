@@ -1,0 +1,18 @@
+# Virtual environment
+venv/
+
+# Environment variables and secrets
+.env
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Uploaded resumes
+static/uploads/*
+
+# Generated reports
+reports/*
+
+# IDE files
+.vscode/
