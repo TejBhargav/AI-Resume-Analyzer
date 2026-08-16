@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Analysis Details - AI Resume Analyzer
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/style.css') }}"
+    >
+
+</head>
+
+<body>
+
+    <nav>
+
+        <div class="logo">
+            AI Resume Analyzer
+        </div>
+
+        <div class="nav-links">
+
+            <a href="/dashboard">
+                Dashboard
+            </a>
+
+            <a href="/my-resumes">
+                My Resumes
+            </a>
+
+            <a href="/history">
+                History
+            </a>
+
+            <a href="/logout">
+                Logout
+            </a>
+
+        </div>
+
+    </nav>
+
+
+    <main class="analysis-details-page">
+
+        <div class="details-header">
+
+            <div>
+
+                <h1>
+                    Analysis Details
+                </h1>
+
+                <p>
+                    {{ analysis.resume.resume_name }}
+                </p>
+
+            </div>
+
+            <a
+                href="/history"
+                class="secondary-button"
+            >
+                Back to History
+            </a>
+
+        </div>
+
+
+        <section class="details-job-card">
+
+            <div>
+
+                <span>
+                    Company
+                </span>
+
+                <h2>
+                    {{ analysis.job_description.company }}
+                </h2>
+
+            </div>
+
+
+            <div>
+
+                <span>
+                    Position
+                </span>
+
+                <h2>
+                    {{ analysis.job_description.role }}
+                </h2>
+
+            </div>
+
+
+            <div>
+
+                <span>
+                    Analyzed On
+                </span>
+
+                <h2>
+                    {{ analysis.created_at.strftime("%d-%m-%Y %H:%M") }}
+                </h2>
+
+            </div>
+
+        </section>
+
+
+        <section class="details-score-card">
+
+            <div class="details-score-circle">
+
+                <span>
+                    {{ analysis.ats_score }}%
+                </span>
+
+            </div>
+
+            <div>
+
+                <h2>
+                    ATS Compatibility Score
+                </h2>
+
+                <p>
+                    Overall compatibility between the resume
+                    and the selected job description.
+                </p>
+
+            </div>
+
+        </section>
+
+
+        <section class="details-skills-grid">
+
+
+            <div class="details-skill-card matched-details">
+
+                <h2>
+                    ✓ Matched Skills
+                </h2>
+
+                {% if analysis.matched_skills %}
+
+                    <div class="details-skill-list">
+
+                        {% for skill in analysis.matched_skills.split(",") %}
+
+                            <span>
+                                {{ skill.strip() }}
+                            </span>
+
+                        {% endfor %}
+
+                    </div>
+
+                {% else %}
+
+                    <p>
+                        No matched skills recorded.
+                    </p>
+
+                {% endif %}
+
+            </div>
+
+
+            <div class="details-skill-card missing-details">
+
+                <h2>
+                    ✕ Missing Skills
+                </h2>
+
+                {% if analysis.missing_skills %}
+
+                    <div class="details-skill-list">
+
+                        {% for skill in analysis.missing_skills.split(",") %}
+
+                            <span>
+                                {{ skill.strip() }}
+                            </span>
+
+                        {% endfor %}
+
+                    </div>
+
+                {% else %}
+
+                    <p>
+                        No missing skills recorded.
+                    </p>
+
+                {% endif %}
+
+            </div>
+
+
+        </section>
+
+
+        <section class="details-feedback">
+
+            <div class="details-section-header">
+
+                <h2>
+                    🤖 AI Resume Feedback
+                </h2>
+
+                <p>
+                    AI-generated recommendations from the original analysis.
+                </p>
+
+            </div>
+
+
+            <div class="ai-feedback">
+
+                <pre>{{ analysis.suggestions }}</pre>
+
+            </div>
+
+        </section>
+
+
+        <div class="details-actions">
+
+            <a
+                href="/history"
+                class="secondary-button"
+            >
+                Back to History
+            </a>
+
+            <a
+                href="/job-description"
+                class="primary-button"
+            >
+                Analyze Another Resume
+            </a>
+
+        </div>
+
+    </main>
+
+</body>
+
+</html>

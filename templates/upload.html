@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Resume</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+    <nav>
+        <div class="logo">AI Resume Analyzer</div>
+
+        <div class="nav-links">
+            <a href="/dashboard">Dashboard</a>
+            <a href="/logout">Logout</a>
+        </div>
+    </nav>
+
+    <main>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-container form-message">
+                    {% for category, message in messages %}
+                        <div class="flash {{ category }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <section class="form-container">
+
+            <h1>Upload Resume</h1>
+
+            <form method="POST" enctype="multipart/form-data">
+
+                <label>Select Resume</label>
+
+                <input
+                    type="file"
+                    name="resume"
+                    accept=".pdf,.docx"
+                    required
+                >
+
+                <button type="submit">
+                    Upload Resume
+                </button>
+
+            </form>
+
+        </section>
+
+    </main>
+
+</body>
+</html>

@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Dashboard - AI Resume Analyzer
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/style.css') }}"
+    >
+
+</head>
+
+<body>
+
+    <nav>
+
+        <div class="logo">
+            AI Resume Analyzer
+        </div>
+
+        <div class="nav-links">
+
+            <a href="/dashboard">
+                Dashboard
+            </a>
+
+            <a href="/my-resumes">
+                My Resumes
+            </a>
+
+            <a href="/upload">
+                Upload Resume
+            </a>
+
+            <a href="/history">
+                History
+            </a>
+
+            <a href="/logout">
+                Logout
+            </a>
+
+        </div>
+
+    </nav>
+
+
+    <main class="dashboard">
+
+        <div class="dashboard-header">
+
+            <h1>
+                Welcome {{ session["username"] }}
+            </h1>
+
+            <p>
+                Analyze your resume and improve your chances
+                of getting shortlisted.
+            </p>
+
+        </div>
+
+
+        <section class="stats-container">
+
+            <div class="stat-card">
+
+                <h2>
+                    {{ total_resumes }}
+                </h2>
+
+                <p>
+                    Total Resumes
+                </p>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <h2>
+                    {{ total_analyses }}
+                </h2>
+
+                <p>
+                    Total Analyses
+                </p>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <h2>
+                    {{ average_score }}%
+                </h2>
+
+                <p>
+                    Average ATS Score
+                </p>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <h2>
+                    {{ best_score }}%
+                </h2>
+
+                <p>
+                    Best ATS Score
+                </p>
+
+            </div>
+
+        </section>
+
+
+        <section class="dashboard-cards">
+
+            <div class="dashboard-card">
+
+                <h2>
+                    📄 Upload Resume
+                </h2>
+
+                <p>
+                    Upload your PDF or DOCX resume
+                    for analysis.
+                </p>
+
+                <a href="/upload">
+                    Upload Resume
+                </a>
+
+            </div>
+
+
+            <div class="dashboard-card">
+
+                <h2>
+                    🤖 Analyze Resume
+                </h2>
+
+                <p>
+                    Compare your resume with a job
+                    description using ATS and AI analysis.
+                </p>
+
+                <a href="/job-description">
+                    Start Analysis
+                </a>
+
+            </div>
+
+
+            <div class="dashboard-card">
+
+                <h2>
+                    📊 Analysis History
+                </h2>
+
+                <p>
+                    View your previous resume analyses
+                    and ATS scores.
+                </p>
+
+                <a href="/history">
+                    View History
+                </a>
+
+            </div>
+
+
+            <div class="dashboard-card">
+
+                <h2>
+                    📁 My Resumes
+                </h2>
+
+                <p>
+                    View, download and manage
+                    your uploaded resumes.
+                </p>
+
+                <a href="/my-resumes">
+                    My Resumes
+                </a>
+
+            </div>
+
+        </section>
+
+
+        <section class="recent-analysis-section">
+
+            <div class="recent-analysis-header">
+
+                <div>
+
+                    <h2>
+                        Recent Analyses
+                    </h2>
+
+                    <p>
+                        Your latest resume analysis results.
+                    </p>
+
+                </div>
+
+                <a href="/history">
+                    View All
+                </a>
+
+            </div>
+
+
+            {% if recent_analyses %}
+
+                <div class="recent-analysis-list">
+
+                    {% for analysis in recent_analyses %}
+
+                        <div class="recent-analysis-card">
+
+                            <div>
+
+                                <h3>
+                                    {{ analysis.resume.resume_name }}
+                                </h3>
+
+                                <p>
+                                    {{ analysis.job_description.company }}
+                                    -
+                                    {{ analysis.job_description.role }}
+                                </p>
+
+                            </div>
+
+
+                            <div class="recent-score">
+
+                                {{ analysis.ats_score }}%
+
+                            </div>
+
+
+                            <a
+                                href="{{ url_for('analysis.analysis_details', analysis_id=analysis.id) }}"
+                                class="view-button"
+                            >
+                                View
+                            </a>
+
+                        </div>
+
+                    {% endfor %}
+
+                </div>
+
+            {% else %}
+
+                <div class="empty-recent">
+
+                    <h3>
+                        No analyses yet
+                    </h3>
+
+                    <p>
+                        Upload a resume and start your first analysis.
+                    </p>
+
+                    <a
+                        href="/job-description"
+                        class="primary-button"
+                    >
+                        Start Analysis
+                    </a>
+
+                </div>
+
+            {% endif %}
+
+        </section>
+
+    </main>
+
+</body>
+
+</html>

@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Analysis History - AI Resume Analyzer
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/style.css') }}"
+    >
+
+</head>
+
+<body>
+
+    <nav>
+
+        <div class="logo">
+            AI Resume Analyzer
+        </div>
+
+        <div class="nav-links">
+
+            <a href="/dashboard">
+                Dashboard
+            </a>
+
+            <a href="/my-resumes">
+                My Resumes
+            </a>
+
+            <a href="/upload">
+                Upload Resume
+            </a>
+
+            <a href="/logout">
+                Logout
+            </a>
+
+        </div>
+
+    </nav>
+
+
+    <main class="history-page">
+
+        <div class="history-header">
+
+            <div>
+
+                <h1>
+                    Analysis History
+                </h1>
+
+                <p>
+                    View your previous resume analyses.
+                </p>
+
+            </div>
+
+            <a
+                href="/job-description"
+                class="primary-button"
+            >
+                New Analysis
+            </a>
+
+        </div>
+
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+
+            {% if messages %}
+
+                <div class="flash-container">
+
+                    {% for category, message in messages %}
+
+                        <div class="flash {{ category }}">
+                            {{ message }}
+                        </div>
+
+                    {% endfor %}
+
+                </div>
+
+            {% endif %}
+
+        {% endwith %}
+
+
+        {% if analyses %}
+
+            <div class="history-list">
+
+                {% for analysis in analyses %}
+
+                    <div class="history-item">
+
+                        <div class="history-main">
+
+                            <div class="history-title">
+
+                                <h2>
+                                    {{ analysis.resume.resume_name }}
+                                </h2>
+
+                                <span class="history-score">
+                                    {{ analysis.ats_score }}%
+                                </span>
+
+                            </div>
+
+
+                            <div class="history-details">
+
+                                <div>
+                                    <strong>
+                                        Company
+                                    </strong>
+
+                                    <span>
+                                        {{ analysis.job_description.company }}
+                                    </span>
+                                </div>
+
+
+                                <div>
+                                    <strong>
+                                        Role
+                                    </strong>
+
+                                    <span>
+                                        {{ analysis.job_description.role }}
+                                    </span>
+                                </div>
+
+
+                                <div>
+                                    <strong>
+                                        Date
+                                    </strong>
+
+                                    <span>
+                                        {{ analysis.created_at.strftime("%d-%m-%Y %H:%M") }}
+                                    </span>
+                                </div>
+
+                            </div>
+
+
+                            <div class="history-skills">
+
+                                <div>
+
+                                    <strong>
+                                        Matched Skills
+                                    </strong>
+
+                                    <p>
+                                        {% if analysis.matched_skills %}
+                                            {{ analysis.matched_skills }}
+                                        {% else %}
+                                            No matched skills
+                                        {% endif %}
+                                    </p>
+
+                                </div>
+
+
+                                <div>
+
+                                    <strong>
+                                        Missing Skills
+                                    </strong>
+
+                                    <p>
+                                        {% if analysis.missing_skills %}
+                                            {{ analysis.missing_skills }}
+                                        {% else %}
+                                            No missing skills
+                                        {% endif %}
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="history-action">
+
+                            <a
+                                href="{{ url_for('analysis.analysis_details', analysis_id=analysis.id) }}"
+                                class="view-button"
+                            >
+                                View Analysis
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        {% else %}
+
+            <div class="empty-history">
+
+                <div class="empty-icon">
+                    📊
+                </div>
+
+                <h2>
+                    No Analysis History
+                </h2>
+
+                <p>
+                    You haven't analyzed any resumes yet.
+                </p>
+
+                <a
+                    href="/job-description"
+                    class="primary-button"
+                >
+                    Start Your First Analysis
+                </a>
+
+            </div>
+
+        {% endif %}
+
+    </main>
+
+</body>
+
+</html>
