@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        {{ resume_name }} - Resume Preview
+    </title>
+
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+
+        body {
+
+            margin: 0;
+
+            padding: 30px;
+
+            background: #f2f2f2;
+
+            font-family:
+                Arial,
+                Helvetica,
+                sans-serif;
+
+            color: #111;
+
+        }
+
+
+        /* =========================================
+           MAIN CONTAINER
+           ========================================= */
+
+        .preview-container {
+
+            width: 100%;
+
+            max-width: 950px;
+
+            margin: auto;
+
+        }
+
+
+        /* =========================================
+           HEADER
+           ========================================= */
+
+        .preview-header {
+
+            background: white;
+
+            padding: 20px 25px;
+
+            margin-bottom: 20px;
+
+            border-radius: 12px;
+
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: center;
+
+            gap: 15px;
+
+            box-shadow:
+                0 4px 15px
+                rgba(0, 0, 0, 0.08);
+
+        }
+
+
+        .preview-header h1 {
+
+            margin: 0;
+
+            font-size: 22px;
+
+            word-break: break-word;
+
+        }
+
+
+        /* =========================================
+           BACK BUTTON
+           ========================================= */
+
+        .back-button {
+
+            display: inline-block;
+
+            padding: 10px 18px;
+
+            border-radius: 8px;
+
+            border: 1px solid #111;
+
+            background: white;
+
+            color: #111;
+
+            text-decoration: none;
+
+            transition:
+                all 0.3s ease;
+
+            white-space: nowrap;
+
+        }
+
+
+        .back-button:hover {
+
+            background: #000;
+
+            color: white;
+
+            transform:
+                translateY(-2px);
+
+        }
+
+
+        /* =========================================
+           DOCUMENT
+           ========================================= */
+
+        .document {
+
+            background: white;
+
+            width: 100%;
+
+            min-height: 1000px;
+
+            padding: 60px;
+
+            border-radius: 8px;
+
+            box-shadow:
+                0 5px 25px
+                rgba(0, 0, 0, 0.12);
+
+            line-height: 1.6;
+
+            overflow-wrap: break-word;
+
+        }
+
+
+        /* =========================================
+           DOCUMENT TEXT
+           ========================================= */
+
+        .document h1 {
+
+            font-size: 30px;
+
+            margin-top: 0;
+
+            margin-bottom: 20px;
+
+        }
+
+
+        .document h2 {
+
+            font-size: 23px;
+
+            margin-top: 30px;
+
+            margin-bottom: 12px;
+
+        }
+
+
+        .document h3 {
+
+            font-size: 19px;
+
+            margin-top: 25px;
+
+            margin-bottom: 10px;
+
+        }
+
+
+        .document p {
+
+            margin: 10px 0;
+
+        }
+
+
+        .document ul {
+
+            padding-left: 25px;
+
+        }
+
+
+        .document ol {
+
+            padding-left: 25px;
+
+        }
+
+
+        .document li {
+
+            margin-bottom: 6px;
+
+        }
+
+
+        .document table {
+
+            width: 100%;
+
+            border-collapse: collapse;
+
+            margin: 20px 0;
+
+        }
+
+
+        .document th {
+
+            border: 1px solid #ccc;
+
+            padding: 8px;
+
+            text-align: left;
+
+        }
+
+
+        .document td {
+
+            border: 1px solid #ccc;
+
+            padding: 8px;
+
+        }
+
+
+        .document img {
+
+            max-width: 100%;
+
+            height: auto;
+
+        }
+
+
+        /* =========================================
+           MOBILE
+           ========================================= */
+
+        @media (max-width: 700px) {
+
+            body {
+
+                padding: 15px;
+
+            }
+
+
+            .preview-header {
+
+                flex-direction: column;
+
+                align-items: flex-start;
+
+            }
+
+
+            .preview-header h1 {
+
+                font-size: 18px;
+
+            }
+
+
+            .document {
+
+                padding: 25px;
+
+                min-height: auto;
+
+            }
+
+
+            .document h1 {
+
+                font-size: 25px;
+
+            }
+
+
+            .document h2 {
+
+                font-size: 20px;
+
+            }
+
+
+            .document h3 {
+
+                font-size: 17px;
+
+            }
+
+        }
+
+
+        /* =========================================
+           PRINT
+           ========================================= */
+
+        @media print {
+
+            body {
+
+                background: white;
+
+                padding: 0;
+
+            }
+
+
+            .preview-header {
+
+                display: none;
+
+            }
+
+
+            .document {
+
+                box-shadow: none;
+
+                border-radius: 0;
+
+                padding: 40px;
+
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<div class="preview-container">
+
+
+    <!-- HEADER -->
+
+    <div class="preview-header">
+
+        <h1>
+            📄 {{ resume_name }}
+        </h1>
+
+
+        <a
+            href="{{ url_for('resume.my_resumes') }}"
+            class="back-button"
+        >
+            Back to My Resumes
+        </a>
+
+    </div>
+
+
+    <!-- DOCUMENT -->
+
+    <div class="document">
+
+        {{ content | safe }}
+
+    </div>
+
+
+</div>
+
+
+</body>
+
+</html>
