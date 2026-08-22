@@ -2,421 +2,310 @@
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
-    <title>
-        My Resumes - AI Resume Analyzer
-    </title>
-
+    <title>My Resumes - AI Resume Analyzer</title>
 
     <link
         rel="stylesheet"
         href="{{ url_for('static', filename='css/style.css') }}"
     >
-
 </head>
-
 
 <body>
 
+    <nav>
 
-<!-- =====================================================
-     NAVIGATION
-     ===================================================== -->
+        <div class="logo">
+            AI Resume Analyzer
+        </div>
 
-<nav>
+        <div class="nav-links">
 
+            <a href="{{ url_for('auth.dashboard') }}">
+                Dashboard
+            </a>
 
-    <div class="logo">
+            <a href="{{ url_for('resume.my_resumes') }}">
+                My Resumes
+            </a>
 
-        AI Resume Analyzer
+            <a href="{{ url_for('resume.upload_resume') }}">
+                Upload Resume
+            </a>
 
-    </div>
+            <a href="{{ url_for('analysis.history') }}">
+                History
+            </a>
 
+            <a href="{{ url_for('auth.logout') }}">
+                Logout
+            </a>
 
-    <div class="nav-links">
+        </div>
 
-
-        <a
-            href="{{ url_for('auth.dashboard') }}"
-        >
-            Dashboard
-        </a>
-
-
-        <a
-            href="{{ url_for('resume.my_resumes') }}"
-        >
-            My Resumes
-        </a>
-
-
-        <a
-            href="{{ url_for('resume.upload_resume') }}"
-        >
-            Upload Resume
-        </a>
+    </nav>
 
 
-        <a href="/history">
-            History
-        </a>
+    <main class="dashboard">
 
+        <div class="dashboard-header">
 
-        <a
-            href="{{ url_for('auth.logout') }}"
-        >
-            Logout
-        </a>
-
-
-    </div>
-
-
-</nav>
-
-
-
-<!-- =====================================================
-     MAIN
-     ===================================================== -->
-
-<main class="dashboard">
-
-
-    <!-- HEADER -->
-
-    <div class="dashboard-header">
-
-
-        <h1>
-            My Resumes
-        </h1>
-
-
-        <p>
-            View and manage your uploaded resumes.
-        </p>
-
-
-    </div>
-
-
-
-    <!-- =================================================
-         RESUMES EXIST
-         ================================================= -->
-
-    {% if resumes %}
-
-
-    <div class="dashboard-cards">
-
-
-        {% for resume in resumes %}
-
-
-        <div class="resume-card">
-
-
-            <!-- FILE NAME -->
-
-            <h2>
-
-                📄
-
-                {{ resume.resume_name }}
-
-            </h2>
-
+            <h1>
+                My Resumes
+            </h1>
 
             <p>
-                Uploaded Resume
+                View and manage your uploaded resumes.
             </p>
-
-
-
-            <!-- ACTION BUTTONS -->
-
-            <div class="resume-actions">
-
-
-                <!-- VIEW -->
-
-                <a
-                    href="{{ url_for('resume.view_resume', resume_id=resume.id) }}"
-                    target="_blank"
-                    class="view-button"
-                >
-
-                    View
-
-                </a>
-
-
-
-                <!-- DOWNLOAD -->
-
-                <a
-                    href="{{ url_for('resume.download_resume', resume_id=resume.id) }}"
-                    class="download-button"
-                >
-
-                    Download
-
-                </a>
-
-
-
-                <!-- DELETE -->
-
-                <form
-                    action="{{ url_for('resume.delete_resume', resume_id=resume.id) }}"
-                    method="POST"
-                    style="display: inline;"
-                    onsubmit="return confirm('Are you sure you want to delete this resume?');"
-                >
-
-                    <button
-                        type="submit"
-                        class="delete-button"
-                    >
-
-                        Delete
-
-                    </button>
-
-                </form>
-
-
-            </div>
-
 
         </div>
 
 
-        {% endfor %}
+        {% if resumes %}
 
+        <div class="dashboard-cards resumes-list">
 
-    </div>
+            {% for resume in resumes %}
 
+            <div class="resume-card">
 
+                <div class="resume-info">
 
-    <!-- =================================================
-         NO RESUMES
-         ================================================= -->
+                    <div class="resume-icon">
+                        📄
+                    </div>
 
-    {% else %}
+                    <div class="resume-details">
 
+                        <h2>
+                            {{ resume.resume_name }}
+                        </h2>
 
-    <div class="empty-recent">
+                        <p>
+                            Uploaded Resume
+                        </p>
 
+                    </div>
 
-        <h2>
-            No Resumes Yet
-        </h2>
+                </div>
 
 
-        <p>
-            You have not uploaded any resumes yet.
-        </p>
+                <div class="resume-actions">
 
+                    <a
+                        href="{{ url_for('resume.view_resume', resume_id=resume.id) }}"
+                        target="_blank"
+                        class="view-button"
+                    >
+                        View
+                    </a>
 
-        <a
-            href="{{ url_for('resume.upload_resume') }}"
-            class="primary-button"
-        >
 
-            Upload Resume
+                    <a
+                        href="{{ url_for('resume.download_resume', resume_id=resume.id) }}"
+                        class="download-button"
+                    >
+                        Download
+                    </a>
 
-        </a>
 
+                    <form
+                        action="{{ url_for('resume.delete_resume', resume_id=resume.id) }}"
+                        method="POST"
+                        onsubmit="return confirm('Are you sure you want to delete this resume?');"
+                    >
 
-    </div>
+                        <button
+                            type="submit"
+                            class="delete-button"
+                        >
+                            Delete
+                        </button>
 
+                    </form>
 
-    {% endif %}
+                </div>
 
+            </div>
 
-</main>
+            {% endfor %}
 
+        </div>
 
 
-<!-- =====================================================
-     PAGE STYLES
-     ===================================================== -->
+        {% else %}
 
-<style>
+        <div class="empty-recent">
 
+            <div class="empty-icon">
+                📄
+            </div>
 
-/* =========================================
-   ACTION BUTTONS
-   ========================================= */
+            <h2>
+                No Resumes Yet
+            </h2>
 
-.resume-actions {
+            <p>
+                You have not uploaded any resumes yet.
+            </p>
 
-    display: flex;
+            <a
+                href="{{ url_for('resume.upload_resume') }}"
+                class="primary-button"
+            >
+                Upload Resume
+            </a>
 
-    gap: 10px;
+        </div>
 
-    flex-wrap: wrap;
+        {% endif %}
 
-    margin-top: 20px;
+    </main>
 
-}
 
+    <style>
 
-/* =========================================
-   BUTTON COMMON STYLE
-   ========================================= */
+        .resumes-list {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
 
-.resume-actions a,
-.resume-actions button {
+        .resumes-list .resume-card {
+            width: 100%;
+            min-height: 90px;
 
-    display: inline-block;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
 
-    padding: 10px 16px;
+            padding: 18px 22px;
 
-    border-radius: 8px;
+            background: #ffffff;
 
-    text-decoration: none;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
 
-    cursor: pointer;
+            box-shadow: 0 5px 18px rgba(99, 102, 241, 0.06);
 
-    font-size: 14px;
+            transition: all 0.3s ease;
+        }
 
-    transition:
-        all 0.3s ease;
+        .resumes-list .resume-card:hover {
+            transform: translateY(-3px);
 
-}
+            border-color: #c7d2fe;
 
+            box-shadow:
+                0 10px 25px rgba(99, 102, 241, 0.12);
+        }
 
-/* =========================================
-   VIEW + DOWNLOAD
-   ========================================= */
+        .resumes-list .resume-info {
+            display: flex;
+            align-items: center;
 
-.view-button,
-.download-button {
+            gap: 14px;
 
-    background: white;
+            flex: 1;
+            min-width: 0;
+        }
 
-    color: #111;
+        .resume-icon {
+            width: 45px;
+            height: 45px;
 
-    border: 1px solid #111;
+            flex-shrink: 0;
 
-}
+            display: flex;
+            align-items: center;
+            justify-content: center;
 
+            background: #eef2ff;
 
-.view-button:hover,
-.download-button:hover {
+            border-radius: 11px;
 
-    background: #000 !important;
+            font-size: 22px;
+        }
 
-    color: white !important;
+        .resume-details {
+            min-width: 0;
+        }
 
-    transform:
-        translateY(-3px);
+        .resume-details h2 {
+            margin: 0 0 4px;
 
-}
+            font-size: 17px;
+            font-weight: 700;
 
+            overflow-wrap: anywhere;
+        }
 
-/* =========================================
-   DELETE
-   ========================================= */
+        .resume-details p {
+            margin: 0;
 
-.delete-button {
+            color: #64748b;
 
-    background: white;
+            font-size: 13px;
+        }
 
-    color: #dc2626;
+        .resumes-list .resume-actions {
+            display: flex;
+            align-items: center;
 
-    border: 1px solid #dc2626;
+            gap: 8px;
 
-}
+            margin-left: 25px;
 
+            flex-shrink: 0;
+        }
 
-.delete-button:hover {
+        .resumes-list .resume-actions form {
+            margin: 0;
+        }
 
-    background: #dc2626 !important;
+        .resumes-list .resume-actions a,
+        .resumes-list .resume-actions button {
+            white-space: nowrap;
+        }
 
-    color: white !important;
+        .resumes-list .view-button,
+        .resumes-list .download-button,
+        .resumes-list .delete-button {
+            padding: 9px 14px;
 
-    transform:
-        translateY(-3px);
+            font-size: 13px;
+        }
 
-}
+        @media (max-width: 700px) {
 
+            .resumes-list .resume-card {
+                align-items: flex-start;
 
-/* =========================================
-   RESUME CARD
-   ========================================= */
+                flex-direction: column;
 
-.resume-card {
+                gap: 15px;
+            }
 
-    transition:
-        all 0.35s ease;
+            .resumes-list .resume-actions {
+                width: 100%;
 
-}
+                margin-left: 0;
+            }
 
+            .resumes-list .resume-actions a,
+            .resumes-list .resume-actions form {
+                flex: 1;
+            }
 
-.resume-card:hover {
+            .resumes-list .resume-actions button {
+                width: 100%;
+            }
 
-    background: #000 !important;
+        }
 
-    color: white !important;
-
-    transform:
-        translateY(-6px);
-
-    box-shadow:
-        0 14px 30px
-        rgba(0, 0, 0, 0.25);
-
-}
-
-
-.resume-card:hover h2,
-.resume-card:hover p {
-
-    color: white !important;
-
-}
-
-
-/* =========================================
-   MOBILE
-   ========================================= */
-
-@media (max-width: 600px) {
-
-
-    .resume-actions {
-
-        flex-direction: column;
-
-    }
-
-
-    .resume-actions a,
-    .resume-actions button {
-
-        width: 100%;
-
-        text-align: center;
-
-    }
-
-}
-
-
-</style>
-
+    </style>
 
 </body>
 
