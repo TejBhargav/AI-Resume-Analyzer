@@ -1,11 +1,8 @@
 import os
-
 from dotenv import load_dotenv
 from google import genai
 
-
 load_dotenv()
-
 
 API_KEY = os.getenv("GEMINI_API_KEY")
 
@@ -14,12 +11,10 @@ MODEL_NAME = os.getenv(
     "gemini-3.5-flash"
 )
 
-
 if not API_KEY:
     raise ValueError(
         "GEMINI_API_KEY is not configured in .env"
     )
-
 
 client = genai.Client(
     api_key=API_KEY
@@ -29,19 +24,19 @@ client = genai.Client(
 def generate_ai_feedback(resume, job):
 
     prompt = f"""
-You are an expert ATS resume analyzer and career advisor.
+You are an expert ATS resume analyzer and professional career advisor.
 
-Analyze the following resume against the job description.
+Analyze the resume against the job description carefully.
 
 RESUME:
-
 {resume}
 
 JOB DESCRIPTION:
-
 {job}
 
-Return the analysis using exactly these four headings:
+Return ONLY the following sections and use EXACTLY these headings:
+
+SUMMARY
 
 STRENGTHS
 
@@ -51,20 +46,55 @@ RESUME IMPROVEMENTS
 
 ATS RECOMMENDATIONS
 
-Under each heading, provide 3 to 5 concise bullet points.
+Follow these rules strictly:
 
-Focus on:
+SUMMARY:
+- Write exactly 2 concise sentences.
+- Give an overall assessment of the resume's relevance to the job.
+- Do not use generic statements.
 
-- Technical skills
-- Soft skills
-- Experience
-- Projects
-- Keywords
-- ATS compatibility
-- Resume clarity
-- Job relevance
+STRENGTHS:
+- Provide a maximum of 3 points.
+- Each point must be short and specific.
+- Mention only genuine strengths found in the resume.
+- Focus on relevant skills, projects, experience, achievements, and job alignment.
 
-Do not invent experience or skills that are not present in the resume.
+MISSING SKILLS:
+- Provide a maximum of 4 points.
+- Mention only skills or keywords clearly required by the job description but not found in the resume.
+- Do not invent skills.
+- Do not recommend a skill as missing if an equivalent skill is already clearly present.
+
+RESUME IMPROVEMENTS:
+- Provide exactly 3 points.
+- Identify actual weaknesses in the resume.
+- Focus on measurable impact, clarity, wording, project descriptions, experience, and relevance.
+- Give an actionable improvement rather than a generic statement.
+
+ATS RECOMMENDATIONS:
+- Provide exactly 3 points.
+- Focus on ATS keywords, section structure, formatting, keyword alignment, and readability.
+- Make every recommendation actionable.
+- Do not repeat the same advice from RESUME IMPROVEMENTS.
+
+FORMATTING RULES:
+- Use simple bullet points beginning with "-".
+- Keep each bullet to one short sentence.
+- Do not use "***".
+- Do not use Markdown headings.
+- Do not use numbered lists.
+- Do not repeat the same point.
+- Do not write long paragraphs.
+- Do not invent experience, qualifications, projects, skills, or achievements.
+- Base every observation only on the resume and job description.
+
+The final response must contain ONLY these five sections:
+
+SUMMARY
+STRENGTHS
+MISSING SKILLS
+RESUME IMPROVEMENTS
+ATS RECOMMENDATIONS
 """
 
     response = client.models.generate_content(

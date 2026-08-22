@@ -63,58 +63,102 @@ def login():
 
     return render_template("login.html")
 
-
 @auth_bp.route("/dashboard")
 def dashboard():
+
     if "user_id" not in session:
         flash("Please login first.", "error")
         return redirect(url_for("auth.login"))
 
-    user = User.query.get(session["user_id"])
+    user_id = session["user_id"]
 
-    resume_count = Resume.query.filter_by(
-        user_id=session["user_id"]
-    ).count()
+    user = User.query.get(user_id)
 
-    analysis_count = (
+    total_resumes = (
+        Resume.query
+        .filter(
+            Resume.user_id == user_id
+        )
+        .count()
+    )
+
+    total_analyses = (
         Analysis.query
-        .join(Resume)
-        .filter(Resume.user_id == session["user_id"])
+        .join(
+            Resume,
+            Analysis.resume_id == Resume.id
+        )
+        .filter(
+            Resume.user_id == user_id
+        )
         .count()
     )
 
     average_score = (
-        db.session.query(func.avg(Analysis.ats_score))
-        .join(Resume)
-        .filter(Resume.user_id == session["user_id"])
+        db.session.query(
+            func.avg(Analysis.ats_score)
+        )
+        .join(
+            Resume,
+            Analysis.resume_id == Resume.id
+        )
+        .filter(
+            Resume.user_id == user_id
+        )
         .scalar()
     )
 
-    latest_analysis = (
-        Analysis.query
-        .join(Resume)
-        .filter(Resume.user_id == session["user_id"])
-        .order_by(Analysis.id.desc())
-        .first()
+    best_score = (
+        db.session.query(
+            func.max(Analysis.ats_score)
+        )
+        .join(
+            Resume,
+            Analysis.resume_id == Resume.id
+        )
+        .filter(
+            Resume.user_id == user_id
+        )
+        .scalar()
     )
 
-    average_score = round(average_score, 2) if average_score else 0
+    recent_analyses = (
+        Analysis.query
+        .join(
+            Resume,
+            Analysis.resume_id == Resume.id
+        )
+        .filter(
+            Resume.user_id == user_id
+        )
+        .order_by(
+            Analysis.id.desc()
+        )
+        .limit(5)
+        .all()
+    )
 
-    latest_score = (
-        latest_analysis.ats_score
-        if latest_analysis
+    average_score = (
+        round(float(average_score), 1)
+        if average_score is not None
+        else 0
+    )
+
+    best_score = (
+        round(float(best_score), 1)
+        if best_score is not None
         else 0
     )
 
     return render_template(
         "dashboard.html",
         user=user,
-        resume_count=resume_count,
-        analysis_count=analysis_count,
+        total_resumes=total_resumes,
+        total_analyses=total_analyses,
         average_score=average_score,
-        latest_score=latest_score
+        best_score=best_score,
+        recent_analyses=recent_analyses
     )
-
 
 @auth_bp.route("/logout")
 def logout():
