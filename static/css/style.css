@@ -2033,25 +2033,55 @@ input[type="file"]:hover {
     transition: all 0.25s ease;
 }
 
-.view-button,
-.download-button {
+.view-button {
     background: #eef2ff;
     color: #4f46e5;
     border: 1px solid #e0e7ff;
+    text-decoration: none;
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-weight: 600;
+    display: inline-block;
+    transition: 0.2s ease;
 }
 
-.view-button:hover,
-.download-button:hover {
+.view-button:hover {
     background: #6366f1 !important;
     color: #ffffff !important;
     border-color: #6366f1;
     transform: translateY(-2px);
 }
 
+
+.download-button {
+    background: #ecfdf5;
+    color: #16a34a;
+    border: 1px solid #bbf7d0;
+    text-decoration: none;
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-weight: 600;
+    display: inline-block;
+    transition: 0.2s ease;
+}
+
+.download-button:hover {
+    background: #16a34a !important;
+    color: #ffffff !important;
+    border-color: #16a34a;
+    transform: translateY(-2px);
+}
+
+
 .delete-button {
     background: #fff1f2;
     color: #e11d48;
     border: 1px solid #fecdd3;
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s ease;
 }
 
 .delete-button:hover {
@@ -2203,3 +2233,4 @@ input[type="file"]:hover {
     }
 
 }
+

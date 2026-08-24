@@ -10,454 +10,57 @@
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>My Resumes - AI Resume Analyzer</title>
-
-    <link
-        rel="preconnect"
-        href="https://fonts.googleapis.com"
-    >
-
-    <link
-        rel="preconnect"
-        href="https://fonts.gstatic.com"
-        crossorigin
-    >
-
-    <link
-        href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
-        rel="stylesheet"
-    >
+    <title>
+        My Resumes - AI Resume Analyzer
+    </title>
 
     <link
         rel="stylesheet"
         href="{{ url_for('static', filename='css/style.css') }}"
     >
 
-    <style>
-
-        body {
-            font-family: "DM Sans", sans-serif;
-        }
-
-        h1,
-        h2,
-        h3,
-        .logo {
-            font-family: "Plus Jakarta Sans", sans-serif;
-        }
-
-        .dashboard {
-            width: 90%;
-            max-width: 1200px;
-            margin: 50px auto;
-        }
-
-        .dashboard-header {
-            margin-bottom: 30px;
-        }
-
-        .dashboard-header h1 {
-            font-size: 36px;
-            font-weight: 800;
-            letter-spacing: -0.04em;
-            margin-bottom: 8px;
-        }
-
-        .dashboard-header p {
-            color: #64748b;
-            font-size: 14px;
-            font-weight: 500;
-        }
-
-        .dashboard-cards {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .resume-card {
-            position: relative;
-
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-
-            gap: 25px;
-
-            width: 100%;
-            box-sizing: border-box;
-
-            padding: 20px 24px;
-
-            background: #ffffff;
-
-            border: 1px solid #e2e8f0;
-
-            border-radius: 16px;
-
-            box-shadow:
-                0 6px 20px rgba(99, 102, 241, 0.04);
-
-            transition:
-                transform 0.3s ease,
-                box-shadow 0.3s ease,
-                border-color 0.3s ease;
-        }
-
-        .resume-card::before {
-            content: "";
-
-            width: 4px;
-            height: 42px;
-
-            position: absolute;
-            left: 0;
-            top: 50%;
-
-            transform: translateY(-50%);
-
-            border-radius: 0 5px 5px 0;
-
-            background: linear-gradient(
-                180deg,
-                #6366f1,
-                #8b5cf6
-            );
-        }
-
-        .resume-card:hover {
-            transform: translateY(-3px);
-
-            border-color: #c7d2fe;
-
-            box-shadow:
-                0 12px 28px rgba(99, 102, 241, 0.1);
-        }
-
-        .resume-info {
-            min-width: 0;
-            flex: 1;
-        }
-
-        .resume-info h2 {
-            margin: 0 0 5px;
-
-            font-size: 16px;
-            font-weight: 700;
-
-            letter-spacing: -0.02em;
-
-            color: #1e293b;
-
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .resume-info p {
-            margin: 0;
-
-            color: #64748b;
-
-            font-size: 12px;
-            font-weight: 500;
-        }
-
-        .resume-actions {
-            display: flex;
-
-            align-items: center;
-
-            gap: 8px;
-
-            flex-shrink: 0;
-        }
-
-        .resume-actions a,
-        .resume-actions button {
-
-            display: inline-flex;
-
-            align-items: center;
-            justify-content: center;
-
-            min-width: 75px;
-
-            padding: 9px 14px;
-
-            border-radius: 9px;
-
-            font-family: "DM Sans", sans-serif;
-
-            font-size: 12px;
-
-            font-weight: 700;
-
-            text-decoration: none;
-
-            cursor: pointer;
-
-            transition: all 0.25s ease;
-
-            box-sizing: border-box;
-        }
-
-        /* VIEW - BLUE */
-
-        .view-button {
-
-            background: #eef2ff;
-
-            color: #4f46e5;
-
-            border: 1px solid #c7d2fe;
-        }
-
-        .view-button:hover {
-
-            background: #4f46e5 !important;
-
-            color: #ffffff !important;
-
-            border-color: #4f46e5;
-
-            transform: translateY(-2px);
-
-            box-shadow:
-                0 6px 14px rgba(79, 70, 229, 0.2);
-        }
-
-        /* DOWNLOAD - GREEN */
-
-        .download-button {
-
-            background: #ecfdf5;
-
-            color: #059669;
-
-            border: 1px solid #a7f3d0;
-        }
-
-        .download-button:hover {
-
-            background: #059669 !important;
-
-            color: #ffffff !important;
-
-            border-color: #059669;
-
-            transform: translateY(-2px);
-
-            box-shadow:
-                0 6px 14px rgba(5, 150, 105, 0.2);
-        }
-
-        /* DELETE - RED */
-
-        .delete-button {
-
-            background: #fff1f2;
-
-            color: #e11d48;
-
-            border: 1px solid #fecdd3;
-        }
-
-        .delete-button:hover {
-
-            background: #e11d48 !important;
-
-            color: #ffffff !important;
-
-            border-color: #e11d48;
-
-            transform: translateY(-2px);
-
-            box-shadow:
-                0 6px 14px rgba(225, 29, 72, 0.2);
-        }
-
-        .empty-recent {
-
-            text-align: center;
-
-            padding: 60px 25px;
-
-            background: #ffffff;
-
-            border: 1px solid #e2e8f0;
-
-            border-radius: 18px;
-
-            box-shadow:
-                0 8px 25px rgba(99, 102, 241, 0.05);
-        }
-
-        .empty-recent h2 {
-
-            font-family: "Plus Jakarta Sans", sans-serif;
-
-            font-size: 22px;
-
-            font-weight: 800;
-
-            margin-bottom: 8px;
-        }
-
-        .empty-recent p {
-
-            color: #64748b;
-
-            font-size: 14px;
-
-            margin-bottom: 22px;
-        }
-
-        .primary-button {
-
-            display: inline-block;
-
-            padding: 11px 18px;
-
-            border-radius: 10px;
-
-            background: linear-gradient(
-                135deg,
-                #6366f1,
-                #8b5cf6
-            );
-
-            color: #ffffff;
-
-            text-decoration: none;
-
-            font-size: 13px;
-
-            font-weight: 700;
-
-            transition: all 0.25s ease;
-        }
-
-        .primary-button:hover {
-
-            transform: translateY(-2px);
-
-            box-shadow:
-                0 8px 18px rgba(99, 102, 241, 0.2);
-        }
-
-        @media (max-width: 700px) {
-
-            .dashboard {
-
-                width: 92%;
-
-                margin: 35px auto;
-            }
-
-            .dashboard-header h1 {
-
-                font-size: 30px;
-            }
-
-            .resume-card {
-
-                flex-direction: column;
-
-                align-items: flex-start;
-
-                gap: 15px;
-
-                padding: 20px;
-            }
-
-            .resume-info {
-
-                width: 100%;
-            }
-
-            .resume-actions {
-
-                width: 100%;
-
-                flex-wrap: wrap;
-            }
-
-            .resume-actions a,
-            .resume-actions button {
-
-                flex: 1;
-
-                min-width: 90px;
-            }
-
-        }
-
-        @media (max-width: 450px) {
-
-            .resume-actions {
-
-                flex-direction: column;
-
-                width: 100%;
-            }
-
-            .resume-actions a,
-            .resume-actions button {
-
-                width: 100%;
-
-                flex: none;
-            }
-
-        }
-
-    </style>
-
 </head>
-
 
 <body>
 
+<nav>
 
-    <nav>
+    <div class="logo">
+        AI Resume Analyzer
+    </div>
 
-        <div class="logo">
-            AI Resume Analyzer
-        </div>
+    <div class="nav-links">
 
+        <a href="{{ url_for('auth.dashboard') }}">
+            Dashboard
+        </a>
 
-        <div class="nav-links">
+        <a href="{{ url_for('resume.my_resumes') }}">
+            My Resumes
+        </a>
 
-            <a href="{{ url_for('auth.dashboard') }}">
-                Dashboard
-            </a>
+        <a href="{{ url_for('resume.upload_resume') }}">
+            Upload Resume
+        </a>
 
-            <a href="{{ url_for('resume.my_resumes') }}">
-                My Resumes
-            </a>
+        <a href="{{ url_for('analysis.history') }}">
+            History
+        </a>
 
-            <a href="/upload">
-                Upload Resume
-            </a>
+        <a href="{{ url_for('auth.logout') }}">
+            Logout
+        </a>
 
-            <a href="/history">
-                History
-            </a>
+    </div>
 
-            <a href="{{ url_for('auth.logout') }}">
-                Logout
-            </a>
-
-        </div>
-
-    </nav>
+</nav>
 
 
-    <main class="dashboard">
+<main class="resumes-page">
 
+    <div class="page-header">
 
-        <div class="dashboard-header">
+        <div>
 
             <h1>
                 My Resumes
@@ -469,109 +72,136 @@
 
         </div>
 
+        <a
+            href="{{ url_for('resume.upload_resume') }}"
+            class="primary-button"
+        >
+            Upload New Resume
+        </a>
 
-        {% if resumes %}
-
-
-            <div class="dashboard-cards">
-
-
-                {% for resume in resumes %}
-
-
-                    <div class="resume-card">
+    </div>
 
 
-                        <div class="resume-info">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+
+        {% if messages %}
+
+            <div class="flash-container">
+
+                {% for category, message in messages %}
+
+                    <div class="flash {{ category }}">
+                        {{ message }}
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        {% endif %}
+
+    {% endwith %}
+
+
+    {% if resumes %}
+
+        <div class="resume-list">
+
+            {% for resume in resumes %}
+
+                <div class="resume-card">
+
+                    <div class="resume-info">
+
+                        <div class="resume-icon">
+                            📄
+                        </div>
+
+                        <div>
 
                             <h2>
-                                📄 {{ resume.resume_name }}
+                                {{ resume.resume_name }}
                             </h2>
 
                             <p>
-                                Uploaded Resume
+                                Resume ID: {{ resume.id }}
                             </p>
 
                         </div>
 
-
-                        <div class="resume-actions">
-
-
-                            <a
-                                href="{{ url_for('resume.view_resume', resume_id=resume.id) }}"
-                                target="_blank"
-                                class="view-button"
-                            >
-                                View
-                            </a>
-
-
-                            <a
-                                href="{{ url_for('resume.download_resume', resume_id=resume.id) }}"
-                                class="download-button"
-                            >
-                                Download
-                            </a>
-
-
-                            <form
-                                action="{{ url_for('resume.delete_resume', resume_id=resume.id) }}"
-                                method="POST"
-                                style="display: inline;"
-                                onsubmit="return confirm('Are you sure you want to delete this resume?');"
-                            >
-
-                                <button
-                                    type="submit"
-                                    class="delete-button"
-                                >
-                                    Delete
-                                </button>
-
-                            </form>
-
-
-                        </div>
-
-
                     </div>
 
 
-                {% endfor %}
+                    <div class="resume-actions">
+
+                        <a
+                            href="{{ url_for('resume.view_resume', resume_id=resume.id) }}"
+                            class="view-button"
+                            target="_blank"
+                        >
+                            View
+                        </a>
 
 
+                        <a
+                            href="{{ url_for('resume.download_resume', resume_id=resume.id) }}"
+                            class="download-button"
+                        >
+                            Download
+                        </a>
+
+
+                        <form
+                            method="POST"
+                            action="{{ url_for('resume.delete_resume', resume_id=resume.id) }}"
+                            onsubmit="return confirm('Are you sure you want to delete this resume?');"
+                        >
+
+                            <button
+                                type="submit"
+                                class="delete-button"
+                            >
+                                Delete
+                            </button>
+
+                        </form>
+
+                    </div>
+
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+    {% else %}
+
+        <div class="empty-history">
+
+            <div class="empty-icon">
+                📄
             </div>
 
+            <h2>
+                No Resumes Uploaded
+            </h2>
 
-        {% else %}
+            <p>
+                Upload your first resume to start analyzing it.
+            </p>
 
+            <a
+                href="{{ url_for('resume.upload_resume') }}"
+                class="primary-button"
+            >
+                Upload Resume
+            </a>
 
-            <div class="empty-recent">
+        </div>
 
-                <h2>
-                    No Resumes Yet
-                </h2>
+    {% endif %}
 
-                <p>
-                    You have not uploaded any resumes yet.
-                </p>
-
-                <a
-                    href="/upload"
-                    class="primary-button"
-                >
-                    Upload Resume
-                </a>
-
-            </div>
-
-
-        {% endif %}
-
-
-    </main>
-
+</main>
 
 </body>
 

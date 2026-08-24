@@ -10,17 +10,36 @@ from flask import (
     flash
 )
 
+from dotenv import load_dotenv
+from google import genai
+
 from extensions import db
 
-from models.job_description import JobDescription
 from models.resume import Resume
+from models.job_description import JobDescription
 from models.analysis import Analysis
 
 from utils.skill_matcher import compare_skills
 from utils.feedback_parser import parse_ai_feedback
 
-from services.ai import generate_ai_feedback
 
+load_dotenv()
+
+API_KEY = os.getenv("GEMINI_API_KEY")
+
+MODEL_NAME = os.getenv(
+    "GEMINI_MODEL",
+    "gemini-3.5-flash"
+)
+
+if not API_KEY:
+    raise ValueError(
+        "GEMINI_API_KEY is not configured in .env"
+    )
+
+client = genai.Client(
+    api_key=API_KEY
+)
 
 analysis_bp = Blueprint(
     "analysis",
@@ -28,9 +47,101 @@ analysis_bp = Blueprint(
 )
 
 
-# =========================================================
-# JOB DESCRIPTION
-# =========================================================
+def generate_ai_feedback(resume, job):
+
+    prompt = f"""
+You are an expert ATS resume analyzer and professional career advisor.
+
+Analyze the resume against the job description carefully.
+
+RESUME:
+
+{resume}
+
+JOB DESCRIPTION:
+
+{job}
+
+Return ONLY the following sections and use EXACTLY these headings:
+
+SUMMARY
+
+STRENGTHS
+
+MISSING SKILLS
+
+RESUME IMPROVEMENTS
+
+ATS RECOMMENDATIONS
+
+Follow these rules strictly:
+
+SUMMARY:
+
+- Write exactly 2 concise sentences.
+- Give an overall assessment of the resume's relevance to the job.
+- Do not use generic statements.
+
+STRENGTHS:
+
+- Provide a maximum of 3 points.
+- Each point must be short and specific.
+- Mention only genuine strengths found in the resume.
+- Focus on relevant skills, projects, experience, achievements, and job alignment.
+
+MISSING SKILLS:
+
+- Provide a maximum of 4 points.
+- Mention only skills or keywords clearly required by the job description but not found in the resume.
+- Do not invent skills.
+- Do not recommend a skill as missing if an equivalent skill is already clearly present.
+
+RESUME IMPROVEMENTS:
+
+- Provide exactly 3 points.
+- Identify actual weaknesses in the resume.
+- Focus on measurable impact, clarity, wording, project descriptions, experience, and relevance.
+- Give an actionable improvement rather than a generic statement.
+
+ATS RECOMMENDATIONS:
+
+- Provide exactly 3 points.
+- Focus on ATS keywords, section structure, formatting, keyword alignment, and readability.
+- Make every recommendation actionable.
+- Do not repeat the same advice from RESUME IMPROVEMENTS.
+
+FORMATTING RULES:
+
+- Use simple bullet points beginning with "-".
+- Keep each bullet to one short sentence.
+- Do not use "***".
+- Do not use Markdown headings.
+- Do not use numbered lists.
+- Do not repeat the same point.
+- Do not write long paragraphs.
+- Do not invent experience, qualifications, projects, skills, or achievements.
+- Base every observation only on the resume and job description.
+
+The final response must contain ONLY these five sections:
+
+SUMMARY
+
+STRENGTHS
+
+MISSING SKILLS
+
+RESUME IMPROVEMENTS
+
+ATS RECOMMENDATIONS
+"""
+
+    response = client.models.generate_content(
+        model=MODEL_NAME,
+        contents=prompt
+    )
+
+    return response.text
+
 
 @analysis_bp.route(
     "/job-description",
@@ -49,8 +160,17 @@ def job_description():
             url_for("auth.login")
         )
 
+    resumes = Resume.query.filter_by(
+        user_id=session["user_id"]
+    ).order_by(
+        Resume.id.desc()
+    ).all()
 
     if request.method == "POST":
+
+        resume_id = request.form.get(
+            "resume_id"
+        )
 
         company = request.form.get(
             "company",
@@ -67,11 +187,10 @@ def job_description():
             ""
         ).strip()
 
-
-        if not description:
+        if not resume_id:
 
             flash(
-                "Please enter a job description.",
+                "Please select a resume.",
                 "error"
             )
 
@@ -79,184 +198,58 @@ def job_description():
                 url_for("analysis.job_description")
             )
 
+        if not description:
+
+            flash(
+                "Please enter the job description.",
+                "error"
+            )
+
+            return redirect(
+                url_for("analysis.job_description")
+            )
+
+        resume = Resume.query.filter_by(
+            id=resume_id,
+            user_id=session["user_id"]
+        ).first()
+
+        if not resume:
+
+            flash(
+                "Resume not found.",
+                "error"
+            )
+
+            return redirect(
+                url_for("analysis.job_description")
+            )
 
         job = JobDescription(
-
             user_id=session["user_id"],
-
             company=company,
-
             role=role,
-
             description=description
-
         )
-
 
         db.session.add(job)
-
         db.session.commit()
 
-
-        flash(
-            "Job description saved successfully.",
-            "success"
-        )
-
-
         return redirect(
-            url_for("analysis.analysis")
+            url_for(
+                "analysis.analysis",
+                resume_id=resume.id,
+                job_id=job.id
+            )
         )
-
 
     return render_template(
-        "job_description.html"
+        "job_description.html",
+        resumes=resumes
     )
 
 
-# =========================================================
-# RESUME TEXT EXTRACTION
-# =========================================================
-
-def extract_resume_text(resume):
-
-    """
-    Extract text from PDF or DOCX if resume_text
-    was not already saved in the database.
-    """
-
-    # -----------------------------------------------------
-    # Already available
-    # -----------------------------------------------------
-
-    if resume.resume_text:
-
-        return resume.resume_text
-
-
-    # -----------------------------------------------------
-    # Check file path
-    # -----------------------------------------------------
-
-    if not resume.file_path:
-
-        return ""
-
-
-    if not os.path.exists(
-        resume.file_path
-    ):
-
-        return ""
-
-
-    extension = os.path.splitext(
-        resume.file_path
-    )[1].lower()
-
-
-    # =====================================================
-    # PDF
-    # =====================================================
-
-    if extension == ".pdf":
-
-        try:
-
-            from pypdf import PdfReader
-
-
-            reader = PdfReader(
-                resume.file_path
-            )
-
-
-            pages = []
-
-
-            for page in reader.pages:
-
-                text = page.extract_text()
-
-
-                if text:
-
-                    pages.append(
-                        text
-                    )
-
-
-            return "\n".join(
-                pages
-            ).strip()
-
-
-        except Exception as e:
-
-            print(
-                "PDF extraction error:",
-                e
-            )
-
-            return ""
-
-
-    # =====================================================
-    # DOCX
-    # =====================================================
-
-    if extension == ".docx":
-
-        try:
-
-            from docx import Document
-
-
-            document = Document(
-                resume.file_path
-            )
-
-
-            paragraphs = []
-
-
-            for paragraph in document.paragraphs:
-
-                text = paragraph.text.strip()
-
-
-                if text:
-
-                    paragraphs.append(
-                        text
-                    )
-
-
-            return "\n".join(
-                paragraphs
-            ).strip()
-
-
-        except Exception as e:
-
-            print(
-                "DOCX extraction error:",
-                e
-            )
-
-            return ""
-
-
-    return ""
-
-
-# =========================================================
-# ANALYSIS
-# =========================================================
-
-@analysis_bp.route(
-    "/analysis"
-)
+@analysis_bp.route("/analysis")
 def analysis():
 
     if "user_id" not in session:
@@ -270,73 +263,20 @@ def analysis():
             url_for("auth.login")
         )
 
-
-    # =====================================================
-    # GET LATEST RESUME
-    # =====================================================
-
-    resume = (
-
-        Resume.query
-
-        .filter_by(
-            user_id=session["user_id"]
-        )
-
-        .order_by(
-            Resume.id.desc()
-        )
-
-        .first()
-
+    resume_id = request.args.get(
+        "resume_id",
+        type=int
     )
 
-
-    # =====================================================
-    # GET LATEST JOB DESCRIPTION
-    # =====================================================
-
-    job = (
-
-        JobDescription.query
-
-        .filter_by(
-            user_id=session["user_id"]
-        )
-
-        .order_by(
-            JobDescription.id.desc()
-        )
-
-        .first()
-
+    job_id = request.args.get(
+        "job_id",
+        type=int
     )
 
-
-    # =====================================================
-    # CHECK RESUME
-    # =====================================================
-
-    if not resume:
+    if not resume_id or not job_id:
 
         flash(
-            "Please upload a resume first.",
-            "error"
-        )
-
-        return redirect(
-            url_for("resume.upload_resume")
-        )
-
-
-    # =====================================================
-    # CHECK JOB DESCRIPTION
-    # =====================================================
-
-    if not job:
-
-        flash(
-            "Please add a job description first.",
+            "Resume or job description not found.",
             "error"
         )
 
@@ -344,300 +284,99 @@ def analysis():
             url_for("analysis.job_description")
         )
 
+    resume = Resume.query.filter_by(
+        id=resume_id,
+        user_id=session["user_id"]
+    ).first_or_404()
 
-    # =====================================================
-    # EXTRACT RESUME TEXT
-    # =====================================================
+    job = JobDescription.query.filter_by(
+        id=job_id,
+        user_id=session["user_id"]
+    ).first_or_404()
 
-    resume_text = extract_resume_text(
-        resume
+    resume_text = getattr(
+        resume,
+        "extracted_text",
+        ""
     )
 
-
-    # =====================================================
-    # CHECK EXTRACTED TEXT
-    # =====================================================
-
     if not resume_text:
+        resume_text = ""
 
-        flash(
-            "Unable to extract text from the uploaded resume. "
-            "Please upload a readable PDF or DOCX file.",
-            "error"
-        )
-
-        return redirect(
-            url_for("resume.my_resumes")
-        )
-
-
-    # =====================================================
-    # SAVE EXTRACTED TEXT
-    # =====================================================
-
-    if not resume.resume_text:
-
-        resume.resume_text = resume_text
-
-        db.session.commit()
-
-
-    # =====================================================
-    # SKILL MATCHING
-    # =====================================================
-
-    try:
-
-        result = compare_skills(
-            resume_text,
-            job.description
-        )
-
-    except Exception as e:
-
-        print(
-            "Skill matching error:",
-            e
-        )
-
-        flash(
-            "Unable to compare resume skills.",
-            "error"
-        )
-
-        return redirect(
-            url_for("resume.my_resumes")
-        )
-
-
-    # =====================================================
-    # AI FEEDBACK
-    # =====================================================
-
-    try:
-
-        ai_feedback = generate_ai_feedback(
-            resume_text,
-            job.description
-        )
-
-    except Exception as e:
-
-        print(
-            "AI feedback error:",
-            e
-        )
-
-        ai_feedback = (
-            "AI feedback could not be generated."
-        )
-
-
-    # =====================================================
-    # PARSE AI FEEDBACK
-    # =====================================================
-
-    try:
-
-        feedback_sections = parse_ai_feedback(
-            ai_feedback
-        )
-
-    except Exception as e:
-
-        print(
-            "Feedback parser error:",
-            e
-        )
-
-        feedback_sections = {}
-
-
-    # =====================================================
-    # SCORES
-    # =====================================================
+    result = compare_skills(
+        resume_text,
+        job.description
+    )
 
     skill_score = result.get(
         "skill_score",
-        result.get(
-            "match_percentage",
-            0
-        )
+        0
     )
-
 
     keyword_score = result.get(
         "keyword_score",
         0
     )
 
-
     content_score = result.get(
         "content_score",
         0
     )
 
-
-    match_percentage = result.get(
+    ats_score = result.get(
         "match_percentage",
-        skill_score
+        0
     )
 
-
-    # =====================================================
-    # MAKE SURE SCORE IS A NUMBER
-    # =====================================================
-
-    try:
-
-        match_percentage = float(
-            match_percentage
-        )
-
-    except (
-        TypeError,
-        ValueError
-    ):
-
-        match_percentage = 0
-
-
-    # Keep score between 0 and 100
-
-    match_percentage = max(
-        0,
-        min(
-            100,
-            match_percentage
-        )
+    ai_feedback = generate_ai_feedback(
+        resume_text,
+        job.description
     )
 
-
-    # =====================================================
-    # MATCHED SKILLS
-    # =====================================================
-
-    matched_skills = result.get(
-        "matched_skills",
-        []
+    parsed_feedback = parse_ai_feedback(
+        ai_feedback
     )
 
-
-    if not isinstance(
-        matched_skills,
-        list
-    ):
-
-        matched_skills = [
-            str(matched_skills)
-        ]
-
-
-    # =====================================================
-    # MISSING SKILLS
-    # =====================================================
-
-    missing_skills = result.get(
-        "missing_skills",
-        []
+    analysis_record = Analysis(
+        resume_id=resume.id,
+        job_description_id=job.id,
+        ats_score=ats_score,
+        matched_skills=", ".join(
+            result.get(
+                "matched_skills",
+                []
+            )
+        ),
+        missing_skills=", ".join(
+            result.get(
+                "missing_skills",
+                []
+            )
+        ),
+        suggestions=ai_feedback
     )
 
+    db.session.add(
+        analysis_record
+    )
 
-    if not isinstance(
-        missing_skills,
-        list
-    ):
-
-        missing_skills = [
-            str(missing_skills)
-        ]
-
-
-    # =====================================================
-    # SAVE ANALYSIS
-    # =====================================================
-
-    try:
-
-        analysis_record = Analysis(
-
-            resume_id=resume.id,
-
-            job_description_id=job.id,
-
-            ats_score=round(
-                match_percentage
-            ),
-
-            matched_skills=", ".join(
-                matched_skills
-            ),
-
-            missing_skills=", ".join(
-                missing_skills
-            ),
-
-            suggestions=ai_feedback
-
-        )
-
-
-        db.session.add(
-            analysis_record
-        )
-
-        db.session.commit()
-
-
-    except Exception as e:
-
-        db.session.rollback()
-
-        print(
-            "Analysis database error:",
-            e
-        )
-
-        flash(
-            "Analysis was generated but could not be saved.",
-            "error"
-        )
-
-
-    # =====================================================
-    # SHOW ANALYSIS
-    # =====================================================
+    db.session.commit()
 
     return render_template(
-
         "analysis.html",
-
+        analysis=analysis_record,
         resume=resume,
-
         job=job,
-
         result=result,
-
-        ai_feedback=ai_feedback,
-
-        feedback_sections=feedback_sections,
-
         skill_score=skill_score,
-
         keyword_score=keyword_score,
-
-        content_score=content_score
-
+        content_score=content_score,
+        ats_score=ats_score,
+        parsed_feedback=parsed_feedback
     )
 
 
-# =========================================================
-# HISTORY
-# =========================================================
-
-@analysis_bp.route(
-    "/history"
-)
+@analysis_bp.route("/history")
 def history():
 
     if "user_id" not in session:
@@ -651,28 +390,20 @@ def history():
             url_for("auth.login")
         )
 
-
     analyses = (
-
         Analysis.query
-
-        .join(Resume)
-
-        .join(JobDescription)
-
-        .filter(
-            Resume.user_id
-            == session["user_id"]
+        .join(
+            Resume,
+            Analysis.resume_id == Resume.id
         )
-
+        .filter(
+            Resume.user_id == session["user_id"]
+        )
         .order_by(
             Analysis.id.desc()
         )
-
         .all()
-
     )
-
 
     return render_template(
         "history.html",
@@ -680,16 +411,10 @@ def history():
     )
 
 
-# =========================================================
-# ANALYSIS DETAILS
-# =========================================================
-
 @analysis_bp.route(
     "/analysis/<int:analysis_id>"
 )
-def analysis_details(
-    analysis_id
-):
+def analysis_details(analysis_id):
 
     if "user_id" not in session:
 
@@ -702,33 +427,20 @@ def analysis_details(
             url_for("auth.login")
         )
 
-
     analysis_record = (
-
         Analysis.query
-
-        .get_or_404(
-            analysis_id
+        .join(
+            Resume,
+            Analysis.resume_id == Resume.id
         )
-
+        .filter(
+            Analysis.id == analysis_id,
+            Resume.user_id == session["user_id"]
+        )
+        .first_or_404()
     )
 
-
-    if (
-        analysis_record.resume.user_id
-        != session["user_id"]
-    ):
-
-        return (
-            "Unauthorized access",
-            403
-        )
-
-
     return render_template(
-
         "analysis_details.html",
-
         analysis=analysis_record
-
     )

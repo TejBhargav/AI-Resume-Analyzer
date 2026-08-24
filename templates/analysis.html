@@ -14,625 +14,14 @@
         Resume Analysis - AI Resume Analyzer
     </title>
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-
-    <link
-        rel="preconnect"
-        href="https://fonts.gstatic.com"
-        crossorigin
-    >
-
-    <link
-        href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap"
-        rel="stylesheet"
-    >
-
     <link
         rel="stylesheet"
         href="{{ url_for('static', filename='css/style.css') }}"
     >
 
-    <style>
-
-        .analysis-page {
-            width: 90%;
-            max-width: 1150px;
-            margin: 45px auto 60px;
-        }
-
-        .analysis-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 25px;
-        }
-
-        .analysis-header h1 {
-            font-family: "Plus Jakarta Sans", sans-serif;
-            font-size: 34px;
-            font-weight: 800;
-            color: #172033;
-            margin: 0 0 6px;
-            letter-spacing: -1px;
-        }
-
-        .analysis-header p {
-            font-size: 13px;
-            color: #64748b;
-            margin: 0;
-        }
-
-        .history-link {
-            text-decoration: none;
-            color: #4f46e5;
-            background: #eef2ff;
-            border: 1px solid #c7d2fe;
-            padding: 10px 16px;
-            border-radius: 9px;
-            font-size: 12px;
-            font-weight: 700;
-        }
-
-        .job-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 16px;
-            margin-bottom: 20px;
-        }
-
-        .job-card {
-            background: white;
-            border: 1px solid #e2e8f0;
-            border-radius: 15px;
-            padding: 19px;
-            box-shadow: 0 6px 20px rgba(15, 23, 42, 0.04);
-        }
-
-        .job-card span {
-            display: block;
-            font-size: 10px;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: .06em;
-            color: #94a3b8;
-            margin-bottom: 7px;
-        }
-
-        .job-card strong {
-            font-family: "Plus Jakarta Sans", sans-serif;
-            font-size: 15px;
-            color: #1e293b;
-        }
-
-        .score-card {
-            background: linear-gradient(
-                135deg,
-                #ffffff,
-                #f8f7ff
-            );
-            border: 1px solid #e0e7ff;
-            border-radius: 20px;
-            padding: 30px;
-            display: flex;
-            align-items: center;
-            gap: 30px;
-            margin-bottom: 20px;
-            box-shadow: 0 10px 30px rgba(79, 70, 229, .07);
-        }
-
-        .score-circle {
-            width: 145px;
-            height: 145px;
-            min-width: 145px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: white;
-            border: 9px solid #e0e7ff;
-            box-shadow: 0 0 0 5px #f5f3ff;
-        }
-
-        .score-circle span {
-            font-family: "Plus Jakarta Sans", sans-serif;
-            font-size: 32px;
-            font-weight: 800;
-            color: #6366f1;
-        }
-
-        .score-info h2 {
-            font-family: "Plus Jakarta Sans", sans-serif;
-            font-size: 22px;
-            font-weight: 800;
-            color: #172033;
-            margin: 0 0 8px;
-        }
-
-        .score-info p {
-            color: #64748b;
-            font-size: 13px;
-            line-height: 1.7;
-            max-width: 650px;
-            margin: 0;
-        }
-
-        .score-status {
-            display: inline-flex;
-            margin-top: 12px;
-            padding: 7px 13px;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: 800;
-            background: #ecfdf5;
-            color: #047857;
-        }
-
-        .ats-breakdown {
-            background: white;
-            border: 1px solid #e2e8f0;
-            border-radius: 18px;
-            padding: 25px;
-            margin-bottom: 22px;
-            box-shadow: 0 7px 22px rgba(15, 23, 42, .04);
-        }
-
-        .ats-breakdown-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 22px;
-        }
-
-        .ats-breakdown-header h2 {
-            font-family: "Plus Jakarta Sans", sans-serif;
-            font-size: 20px;
-            font-weight: 800;
-            color: #172033;
-            margin: 0;
-        }
-
-        .ats-breakdown-header span {
-            font-size: 11px;
-            font-weight: 700;
-            color: #94a3b8;
-        }
-
-        .ats-metric {
-            margin-bottom: 18px;
-        }
-
-        .ats-metric:last-child {
-            margin-bottom: 0;
-        }
-
-        .ats-metric-top {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 8px;
-        }
-
-        .ats-metric-name {
-            font-size: 12px;
-            font-weight: 700;
-            color: #334155;
-        }
-
-        .ats-metric-score {
-            font-family: "Plus Jakarta Sans", sans-serif;
-            font-size: 13px;
-            font-weight: 800;
-            color: #4f46e5;
-        }
-
-        .ats-progress {
-            width: 100%;
-            height: 9px;
-            background: #eef2f7;
-            border-radius: 20px;
-            overflow: hidden;
-        }
-
-        .ats-progress-bar {
-            height: 100%;
-            border-radius: 20px;
-            background: linear-gradient(
-                90deg,
-                #6366f1,
-                #8b5cf6
-            );
-            transition: width .5s ease;
-        }
-
-        .skills-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 17px;
-            margin-bottom: 22px;
-        }
-
-        .skills-card {
-            background: white;
-            border-radius: 17px;
-            padding: 23px;
-            border: 1px solid #e2e8f0;
-        }
-
-        .skills-card h2 {
-            font-family: "Plus Jakarta Sans", sans-serif;
-            font-size: 20px;
-            font-weight: 800;
-            margin: 0 0 16px;
-        }
-
-        .matched-card {
-            border-color: #bbf7d0;
-            background: linear-gradient(
-                135deg,
-                #ffffff,
-                #f0fdf4
-            );
-        }
-
-        .matched-card h2 {
-            color: #047857;
-        }
-
-        .missing-card {
-            border-color: #fde68a;
-            background: linear-gradient(
-                135deg,
-                #ffffff,
-                #fffbeb
-            );
-        }
-
-        .missing-card h2 {
-            color: #b45309;
-        }
-
-        .skill-list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-
-        .skill-chip {
-            padding: 7px 11px;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: 700;
-        }
-
-        .matched-chip {
-            background: #dcfce7;
-            color: #047857;
-            border: 1px solid #bbf7d0;
-        }
-
-        .missing-chip {
-            background: #fef3c7;
-            color: #b45309;
-            border: 1px solid #fde68a;
-        }
-
-        .feedback-container {
-            background: white;
-            border: 1px solid #e2e8f0;
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 8px 28px rgba(15, 23, 42, .05);
-        }
-
-        .feedback-header {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            margin-bottom: 28px;
-        }
-
-        .feedback-icon {
-            width: 48px;
-            height: 48px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 14px;
-            background: #ede9fe;
-            font-size: 22px;
-        }
-
-        .feedback-header h2 {
-            font-family: "Plus Jakarta Sans", sans-serif;
-            font-size: 25px;
-            font-weight: 800;
-            color: #172033;
-            margin: 0;
-            letter-spacing: -.6px;
-        }
-
-        .feedback-header p {
-            color: #94a3b8;
-            font-size: 11px;
-            margin: 5px 0 0;
-        }
-
-        .feedback-sections {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 18px;
-        }
-
-        .feedback-box {
-            border-radius: 17px;
-            padding: 24px;
-            border: 1px solid #e2e8f0;
-            background: #ffffff;
-        }
-
-        .feedback-box.full {
-            grid-column: 1 / -1;
-        }
-
-        .feedback-box h3 {
-            font-family: "Plus Jakarta Sans", sans-serif;
-            font-size: 22px;
-            font-weight: 800;
-            line-height: 1.3;
-            letter-spacing: -0.5px;
-            margin: 0 0 18px;
-        }
-
-        .feedback-box h3::after {
-            content: "";
-            display: block;
-            width: 52px;
-            height: 4px;
-            border-radius: 10px;
-            margin-top: 10px;
-        }
-
-        .summary-box {
-            background: linear-gradient(
-                135deg,
-                #f5f3ff,
-                #faf5ff
-            );
-            border-color: #ddd6fe;
-        }
-
-        .summary-box h3 {
-            color: #6d28d9;
-        }
-
-        .summary-box h3::after {
-            background: #8b5cf6;
-        }
-
-        .summary-text {
-            color: #334155;
-            font-family: "DM Sans", sans-serif;
-            font-size: 14px;
-            line-height: 1.85;
-            font-weight: 500;
-        }
-
-        .strengths-box {
-            background: linear-gradient(
-                135deg,
-                #ffffff,
-                #f0fdf4
-            );
-            border-color: #bbf7d0;
-        }
-
-        .strengths-box h3 {
-            color: #047857;
-        }
-
-        .strengths-box h3::after {
-            background: #10b981;
-        }
-
-        .missing-box {
-            background: linear-gradient(
-                135deg,
-                #ffffff,
-                #fffbeb
-            );
-            border-color: #fde68a;
-        }
-
-        .missing-box h3 {
-            color: #b45309;
-        }
-
-        .missing-box h3::after {
-            background: #f59e0b;
-        }
-
-        .improvements-box {
-            background: linear-gradient(
-                135deg,
-                #ffffff,
-                #eff6ff
-            );
-            border-color: #bfdbfe;
-        }
-
-        .improvements-box h3 {
-            color: #2563eb;
-        }
-
-        .improvements-box h3::after {
-            background: #3b82f6;
-        }
-
-        .recommendations-box {
-            background: linear-gradient(
-                135deg,
-                #ffffff,
-                #faf5ff
-            );
-            border-color: #ddd6fe;
-        }
-
-        .recommendations-box h3 {
-            color: #7c3aed;
-        }
-
-        .recommendations-box h3::after {
-            background: #8b5cf6;
-        }
-
-        .feedback-list {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .feedback-item {
-            display: flex;
-            align-items: flex-start;
-            gap: 12px;
-            padding: 13px 14px;
-            background: rgba(255,255,255,.82);
-            border: 1px solid rgba(226,232,240,.85);
-            border-radius: 12px;
-            transition: .2s ease;
-        }
-
-        .feedback-item:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 5px 14px rgba(15, 23, 42, .05);
-        }
-
-        .feedback-number {
-            width: 25px;
-            height: 25px;
-            min-width: 25px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            background: white;
-            font-size: 10px;
-            font-weight: 800;
-            color: #475569;
-            border: 1px solid #e2e8f0;
-        }
-
-        .feedback-item p {
-            margin: 2px 0 0;
-            color: #334155;
-            font-family: "DM Sans", sans-serif;
-            font-size: 13px;
-            line-height: 1.7;
-            font-weight: 600;
-        }
-
-        .empty-message {
-            color: #64748b;
-            font-size: 12px;
-            padding: 13px;
-            background: rgba(255,255,255,.75);
-            border-radius: 10px;
-        }
-
-        .actions {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 25px;
-        }
-
-        .action-button {
-            text-decoration: none;
-            padding: 11px 17px;
-            border-radius: 9px;
-            font-size: 12px;
-            font-weight: 700;
-        }
-
-        .back-button {
-            color: #4f46e5;
-            background: #eef2ff;
-            border: 1px solid #c7d2fe;
-        }
-
-        .new-button {
-            color: white;
-            background: linear-gradient(
-                135deg,
-                #6366f1,
-                #8b5cf6
-            );
-        }
-
-        @media (max-width: 850px) {
-
-            .job-grid,
-            .skills-grid,
-            .feedback-sections {
-                grid-template-columns: 1fr;
-            }
-
-            .feedback-box.full {
-                grid-column: auto;
-            }
-
-        }
-
-        @media (max-width: 600px) {
-
-            .analysis-page {
-                width: 92%;
-                margin-top: 30px;
-            }
-
-            .analysis-header {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-
-            .analysis-header h1 {
-                font-size: 29px;
-            }
-
-            .score-card {
-                flex-direction: column;
-                text-align: center;
-            }
-
-            .feedback-container {
-                padding: 20px;
-            }
-
-            .feedback-box {
-                padding: 20px;
-            }
-
-            .feedback-box h3 {
-                font-size: 20px;
-            }
-
-            .actions {
-                flex-direction: column;
-                gap: 10px;
-            }
-
-            .action-button {
-                text-align: center;
-            }
-
-        }
-
-    </style>
-
 </head>
 
-
 <body>
-
 
 <nav>
 
@@ -642,23 +31,23 @@
 
     <div class="nav-links">
 
-        <a href="/dashboard">
+        <a href="{{ url_for('auth.dashboard') }}">
             Dashboard
         </a>
 
-        <a href="/my-resumes">
+        <a href="{{ url_for('resume.my_resumes') }}">
             My Resumes
         </a>
 
-        <a href="/upload">
+        <a href="{{ url_for('resume.upload_resume') }}">
             Upload Resume
         </a>
 
-        <a href="/history">
+        <a href="{{ url_for('analysis.history') }}">
             History
         </a>
 
-        <a href="/logout">
+        <a href="{{ url_for('auth.logout') }}">
             Logout
         </a>
 
@@ -668,7 +57,6 @@
 
 
 <main class="analysis-page">
-
 
     <div class="analysis-header">
 
@@ -685,101 +73,65 @@
         </div>
 
         <a
-            href="/history"
-            class="history-link"
+            href="{{ url_for('analysis.history') }}"
+            class="secondary-button"
         >
-            ← Analysis History
+            Back to History
         </a>
 
     </div>
 
 
-    <section class="job-grid">
+    <section class="analysis-job-card">
 
-        <div class="job-card">
+        <div>
 
             <span>
                 Company
             </span>
 
-            <strong>
+            <h2>
                 {{ job.company }}
-            </strong>
+            </h2>
 
         </div>
 
 
-        <div class="job-card">
+        <div>
 
             <span>
-                Target Role
+                Position
             </span>
 
-            <strong>
+            <h2>
                 {{ job.role }}
-            </strong>
-
-        </div>
-
-
-        <div class="job-card">
-
-            <span>
-                Resume
-            </span>
-
-            <strong>
-                {{ resume.resume_name }}
-            </strong>
+            </h2>
 
         </div>
 
     </section>
 
 
-    <section class="score-card">
+    <section class="ats-score-card">
 
-        <div class="score-circle">
+        <div class="ats-score-circle">
 
             <span>
-                {{ result.get("match_percentage", 0) }}%
+                {{ ats_score }}%
             </span>
 
         </div>
 
-
-        <div class="score-info">
+        <div>
 
             <h2>
-                ATS Compatibility Score
+                Overall ATS Score
             </h2>
 
             <p>
                 Overall compatibility between your resume
-                and the selected job description based on
-                skills, keywords, content, and relevance.
+                and the selected job description.
             </p>
-
-
-            {% if result.get("match_percentage", 0) >= 80 %}
-
-                <div class="score-status">
-                    ● Strong Match
-                </div>
-
-            {% elif result.get("match_percentage", 0) >= 60 %}
-
-                <div class="score-status">
-                    ● Good Match
-                </div>
-
-            {% else %}
-
-                <div class="score-status">
-                    ● Needs Improvement
-                </div>
-
-            {% endif %}
 
         </div>
 
@@ -788,38 +140,29 @@
 
     <section class="ats-breakdown">
 
-        <div class="ats-breakdown-header">
+        <h2>
+            ATS Score Breakdown
+        </h2>
 
-            <h2>
-                ATS Score Breakdown
-            </h2>
+        <div class="score-item">
 
-            <span>
-                Based on your resume analysis
-            </span>
+            <div class="score-label">
 
-        </div>
-
-
-        <div class="ats-metric">
-
-            <div class="ats-metric-top">
-
-                <span class="ats-metric-name">
+                <span>
                     Skills Match
                 </span>
 
-                <span class="ats-metric-score">
-                    {{ result.get("skill_score", 0) }}%
-                </span>
+                <strong>
+                    {{ skill_score }}%
+                </strong>
 
             </div>
 
-            <div class="ats-progress">
+            <div class="progress-bar">
 
                 <div
-                    class="ats-progress-bar"
-                    style="width: {{ result.get('skill_score', 0) }}%;"
+                    class="progress-fill"
+                    data-score="{{ skill_score }}"
                 ></div>
 
             </div>
@@ -827,25 +170,25 @@
         </div>
 
 
-        <div class="ats-metric">
+        <div class="score-item">
 
-            <div class="ats-metric-top">
+            <div class="score-label">
 
-                <span class="ats-metric-name">
+                <span>
                     Keyword Match
                 </span>
 
-                <span class="ats-metric-score">
-                    {{ result.get("keyword_score", 0) }}%
-                </span>
+                <strong>
+                    {{ keyword_score }}%
+                </strong>
 
             </div>
 
-            <div class="ats-progress">
+            <div class="progress-bar">
 
                 <div
-                    class="ats-progress-bar"
-                    style="width: {{ result.get('keyword_score', 0) }}%;"
+                    class="progress-fill"
+                    data-score="{{ keyword_score }}"
                 ></div>
 
             </div>
@@ -853,52 +196,49 @@
         </div>
 
 
-        <div class="ats-metric">
+        <div class="score-item">
 
-            <div class="ats-metric-top">
+            <div class="score-label">
 
-                <span class="ats-metric-name">
+                <span>
                     Content Quality
                 </span>
 
-                <span class="ats-metric-score">
-                    {{ result.get("content_score", 0) }}%
-                </span>
+                <strong>
+                    {{ content_score }}%
+                </strong>
 
             </div>
 
-            <div class="ats-progress">
+            <div class="progress-bar">
 
                 <div
-                    class="ats-progress-bar"
-                    style="width: {{ result.get('content_score', 0) }}%;"
+                    class="progress-fill"
+                    data-score="{{ content_score }}"
                 ></div>
 
             </div>
 
         </div>
-
 
     </section>
 
 
-    <section class="skills-grid">
+    <section class="details-skills-grid">
 
-
-        <div class="skills-card matched-card">
+        <div class="details-skill-card matched-details">
 
             <h2>
                 ✓ Matched Skills
             </h2>
 
+            {% if result.matched_skills %}
 
-            {% if result.get("matched_skills") %}
+                <div class="details-skill-list">
 
-                <div class="skill-list">
+                    {% for skill in result.matched_skills %}
 
-                    {% for skill in result.get("matched_skills", []) %}
-
-                        <span class="skill-chip matched-chip">
+                        <span>
                             {{ skill }}
                         </span>
 
@@ -908,29 +248,28 @@
 
             {% else %}
 
-                <div class="empty-message">
-                    No matched skills identified.
-                </div>
+                <p>
+                    No matched skills found.
+                </p>
 
             {% endif %}
 
         </div>
 
 
-        <div class="skills-card missing-card">
+        <div class="details-skill-card missing-details">
 
             <h2>
-                + Missing Skills
+                ✕ Missing Skills
             </h2>
 
+            {% if result.missing_skills %}
 
-            {% if result.get("missing_skills") %}
+                <div class="details-skill-list">
 
-                <div class="skill-list">
+                    {% for skill in result.missing_skills %}
 
-                    {% for skill in result.get("missing_skills", []) %}
-
-                        <span class="skill-chip missing-chip">
+                        <span>
                             {{ skill }}
                         </span>
 
@@ -940,257 +279,178 @@
 
             {% else %}
 
-                <div class="empty-message">
-                    No major missing skills identified.
-                </div>
+                <p>
+                    No missing skills found.
+                </p>
 
             {% endif %}
 
         </div>
-
 
     </section>
 
 
-    <section class="feedback-container">
+    <section class="details-feedback">
+
+        <div class="details-section-header">
+
+            <h2>
+                🤖 AI Resume Feedback
+            </h2>
+
+            <p>
+                AI-generated recommendations based on your resume
+                and the selected job description.
+            </p>
+
+        </div>
 
 
-        <div class="feedback-header">
+        {% if parsed_feedback.summary %}
 
-            <div class="feedback-icon">
-                ✨
-            </div>
+            <div class="feedback-section">
 
-            <div>
-
-                <h2>
-                    AI Resume Feedback
-                </h2>
+                <h3>
+                    Summary
+                </h3>
 
                 <p>
-                    Personalized insights based on your resume and target role
+                    {{ parsed_feedback.summary }}
                 </p>
 
             </div>
 
-        </div>
+        {% endif %}
 
 
-        <div class="feedback-sections">
+        {% if parsed_feedback.strengths %}
 
-
-            <div class="feedback-box full summary-box">
+            <div class="feedback-section">
 
                 <h3>
-                    ✨ SUMMARY
+                    Strengths
                 </h3>
 
+                <ul>
 
-                {% if feedback_sections.summary %}
+                    {% for item in parsed_feedback.strengths %}
 
-                    <div class="summary-text">
-                        {{ feedback_sections.summary }}
-                    </div>
+                        <li>
+                            {{ item }}
+                        </li>
 
-                {% else %}
+                    {% endfor %}
 
-                    <div class="empty-message">
-                        No summary available.
-                    </div>
-
-                {% endif %}
+                </ul>
 
             </div>
 
+        {% endif %}
 
-            <div class="feedback-box strengths-box">
+
+        {% if parsed_feedback.missing_skills %}
+
+            <div class="feedback-section">
 
                 <h3>
-                    ✓ STRENGTHS
+                    Missing Skills
                 </h3>
 
+                <ul>
 
-                {% if feedback_sections.strengths %}
+                    {% for item in parsed_feedback.missing_skills %}
 
-                    <div class="feedback-list">
+                        <li>
+                            {{ item }}
+                        </li>
 
-                        {% for item in feedback_sections.strengths %}
+                    {% endfor %}
 
-                            <div class="feedback-item">
-
-                                <div class="feedback-number">
-                                    {{ loop.index }}
-                                </div>
-
-                                <p>
-                                    {{ item }}
-                                </p>
-
-                            </div>
-
-                        {% endfor %}
-
-                    </div>
-
-                {% else %}
-
-                    <div class="empty-message">
-                        No specific strengths identified.
-                    </div>
-
-                {% endif %}
+                </ul>
 
             </div>
 
+        {% endif %}
 
-            <div class="feedback-box missing-box">
+
+        {% if parsed_feedback.improvements %}
+
+            <div class="feedback-section">
 
                 <h3>
-                    + MISSING SKILLS
+                    Resume Improvements
                 </h3>
 
+                <ul>
 
-                {% if feedback_sections.missing_skills %}
+                    {% for item in parsed_feedback.improvements %}
 
-                    <div class="feedback-list">
+                        <li>
+                            {{ item }}
+                        </li>
 
-                        {% for item in feedback_sections.missing_skills %}
+                    {% endfor %}
 
-                            <div class="feedback-item">
-
-                                <div class="feedback-number">
-                                    {{ loop.index }}
-                                </div>
-
-                                <p>
-                                    {{ item }}
-                                </p>
-
-                            </div>
-
-                        {% endfor %}
-
-                    </div>
-
-                {% else %}
-
-                    <div class="empty-message">
-                        No major skill gaps identified.
-                    </div>
-
-                {% endif %}
+                </ul>
 
             </div>
 
+        {% endif %}
 
-            <div class="feedback-box improvements-box">
+
+        {% if parsed_feedback.ats_recommendations %}
+
+            <div class="feedback-section">
 
                 <h3>
-                    ✎ RESUME IMPROVEMENTS
+                    ATS Recommendations
                 </h3>
 
+                <ul>
 
-                {% if feedback_sections.improvements %}
+                    {% for item in parsed_feedback.ats_recommendations %}
 
-                    <div class="feedback-list">
+                        <li>
+                            {{ item }}
+                        </li>
 
-                        {% for item in feedback_sections.improvements %}
+                    {% endfor %}
 
-                            <div class="feedback-item">
-
-                                <div class="feedback-number">
-                                    {{ loop.index }}
-                                </div>
-
-                                <p>
-                                    {{ item }}
-                                </p>
-
-                            </div>
-
-                        {% endfor %}
-
-                    </div>
-
-                {% else %}
-
-                    <div class="empty-message">
-                        No improvement suggestions available.
-                    </div>
-
-                {% endif %}
+                </ul>
 
             </div>
 
-
-            <div class="feedback-box recommendations-box">
-
-                <h3>
-                    🎯 ATS RECOMMENDATIONS
-                </h3>
-
-
-                {% if feedback_sections.ats_recommendations %}
-
-                    <div class="feedback-list">
-
-                        {% for item in feedback_sections.ats_recommendations %}
-
-                            <div class="feedback-item">
-
-                                <div class="feedback-number">
-                                    {{ loop.index }}
-                                </div>
-
-                                <p>
-                                    {{ item }}
-                                </p>
-
-                            </div>
-
-                        {% endfor %}
-
-                    </div>
-
-                {% else %}
-
-                    <div class="empty-message">
-                        No ATS recommendations available.
-                    </div>
-
-                {% endif %}
-
-            </div>
-
-
-        </div>
-
+        {% endif %}
 
     </section>
 
 
-    <div class="actions">
+    <div class="details-actions">
 
         <a
-            href="/history"
-            class="action-button back-button"
+            href="{{ url_for('analysis.history') }}"
+            class="secondary-button"
         >
-            ← Back to History
+            Back to History
         </a>
 
-
         <a
-            href="/job-description"
-            class="action-button new-button"
+            href="{{ url_for('analysis.job_description') }}"
+            class="primary-button"
         >
-            Analyze Another Resume →
+            Analyze Another Resume
         </a>
 
     </div>
 
-
 </main>
 
+<script>
+    document.querySelectorAll('.progress-fill').forEach(function (bar) {
+        const score = Number(bar.dataset.score || 0);
+        bar.style.width = score + '%';
+    });
+</script>
 
 </body>
 

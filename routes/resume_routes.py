@@ -21,12 +21,15 @@ from models.analysis import Analysis
 
 resume_bp = Blueprint("resume", __name__)
 
-
-# =========================================================
-# FOLDERS
-# =========================================================
+BASE_DIR = os.path.abspath(
+    os.path.join(
+        os.path.dirname(__file__),
+        ".."
+    )
+)
 
 UPLOAD_FOLDER = os.path.join(
+    BASE_DIR,
     "static",
     "uploads"
 )
@@ -36,24 +39,13 @@ os.makedirs(
     exist_ok=True
 )
 
-
-# =========================================================
-# ALLOWED FILE TYPES
-# =========================================================
-
 ALLOWED_EXTENSIONS = {
     "pdf",
     "docx"
 }
 
-
-# Maximum file size = 5 MB
 MAX_FILE_SIZE = 5 * 1024 * 1024
 
-
-# =========================================================
-# CHECK FILE EXTENSION
-# =========================================================
 
 def allowed_file(filename):
 
@@ -71,9 +63,29 @@ def allowed_file(filename):
     return extension in ALLOWED_EXTENSIONS
 
 
-# =========================================================
-# MY RESUMES
-# =========================================================
+def get_absolute_file_path(file_path):
+
+    if not file_path:
+        return None
+
+    if os.path.isabs(file_path):
+        return file_path
+
+    file_path = file_path.replace(
+        "\\",
+        os.sep
+    ).replace(
+        "/",
+        os.sep
+    )
+
+    return os.path.abspath(
+        os.path.join(
+            BASE_DIR,
+            file_path
+        )
+    )
+
 
 @resume_bp.route("/my-resumes")
 def my_resumes():
@@ -95,10 +107,6 @@ def my_resumes():
     )
 
 
-# =========================================================
-# UPLOAD RESUME
-# =========================================================
-
 @resume_bp.route(
     "/upload",
     methods=["GET", "POST"]
@@ -111,10 +119,6 @@ def upload_resume():
         )
 
     if request.method == "POST":
-
-        # ---------------------------------------------
-        # CHECK FILE EXISTS
-        # ---------------------------------------------
 
         if "resume" not in request.files:
 
@@ -129,12 +133,7 @@ def upload_resume():
 
         file = request.files["resume"]
 
-
-        # ---------------------------------------------
-        # CHECK EMPTY FILE
-        # ---------------------------------------------
-
-        if file.filename == "":
+        if not file.filename:
 
             flash(
                 "Please select a resume.",
@@ -144,11 +143,6 @@ def upload_resume():
             return redirect(
                 url_for("resume.upload_resume")
             )
-
-
-        # ---------------------------------------------
-        # CHECK FILE TYPE
-        # ---------------------------------------------
 
         if not allowed_file(file.filename):
 
@@ -161,11 +155,6 @@ def upload_resume():
                 url_for("resume.upload_resume")
             )
 
-
-        # ---------------------------------------------
-        # CHECK FILE SIZE
-        # ---------------------------------------------
-
         file.seek(
             0,
             os.SEEK_END
@@ -174,7 +163,6 @@ def upload_resume():
         file_size = file.tell()
 
         file.seek(0)
-
 
         if file_size > MAX_FILE_SIZE:
 
@@ -187,29 +175,14 @@ def upload_resume():
                 url_for("resume.upload_resume")
             )
 
-
-        # ---------------------------------------------
-        # ORIGINAL FILE NAME
-        # ---------------------------------------------
-
         original_filename = secure_filename(
             file.filename
         )
-
-
-        # ---------------------------------------------
-        # FILE EXTENSION
-        # ---------------------------------------------
 
         extension = original_filename.rsplit(
             ".",
             1
         )[1].lower()
-
-
-        # ---------------------------------------------
-        # UNIQUE FILE NAME
-        # ---------------------------------------------
 
         unique_filename = (
             str(uuid.uuid4())
@@ -217,59 +190,43 @@ def upload_resume():
             + extension
         )
 
-
-        file_path = os.path.join(
+        absolute_file_path = os.path.join(
             UPLOAD_FOLDER,
             unique_filename
         )
 
+        relative_file_path = os.path.join(
+            "static",
+            "uploads",
+            unique_filename
+        )
 
-        # ---------------------------------------------
-        # SAVE FILE
-        # ---------------------------------------------
-
-        file.save(file_path)
-
-
-        # ---------------------------------------------
-        # SAVE DATABASE RECORD
-        # ---------------------------------------------
+        file.save(
+            absolute_file_path
+        )
 
         resume = Resume(
             user_id=session["user_id"],
             resume_name=original_filename,
-            file_path=file_path
+            file_path=relative_file_path
         )
 
-
         db.session.add(resume)
-
         db.session.commit()
-
 
         flash(
             "Resume uploaded successfully.",
             "success"
         )
 
-
         return redirect(
             url_for("resume.my_resumes")
         )
-
-
-    # ---------------------------------------------
-    # GET REQUEST
-    # ---------------------------------------------
 
     return render_template(
         "upload.html"
     )
 
-
-# =========================================================
-# VIEW RESUME
-# =========================================================
 
 @resume_bp.route(
     "/view-resume/<int:resume_id>"
@@ -281,36 +238,27 @@ def view_resume(resume_id):
             url_for("auth.login")
         )
 
-
     resume = Resume.query.filter_by(
         id=resume_id,
         user_id=session["user_id"]
     ).first_or_404()
 
-
-    # ---------------------------------------------
-    # CHECK FILE PATH
-    # ---------------------------------------------
-
-    if not resume.file_path:
-
-        flash(
-            "Resume file not found.",
-            "error"
-        )
-
-        return redirect(
-            url_for("resume.my_resumes")
-        )
-
-
-    # ---------------------------------------------
-    # CHECK FILE EXISTS
-    # ---------------------------------------------
-
-    if not os.path.exists(
+    file_path = get_absolute_file_path(
         resume.file_path
-    ):
+    )
+
+    if not file_path:
+
+        flash(
+            "Resume file path is missing.",
+            "error"
+        )
+
+        return redirect(
+            url_for("resume.my_resumes")
+        )
+
+    if not os.path.isfile(file_path):
 
         flash(
             "Resume file not found.",
@@ -320,33 +268,18 @@ def view_resume(resume_id):
         return redirect(
             url_for("resume.my_resumes")
         )
-
-
-    # ---------------------------------------------
-    # GET FILE EXTENSION
-    # ---------------------------------------------
 
     extension = os.path.splitext(
-        resume.file_path
+        file_path
     )[1].lower()
-
-
-    # =================================================
-    # PDF
-    # =================================================
 
     if extension == ".pdf":
 
         return send_file(
-            resume.file_path,
+            file_path,
             mimetype="application/pdf",
             as_attachment=False
         )
-
-
-    # =================================================
-    # DOCX
-    # =================================================
 
     if extension == ".docx":
 
@@ -354,13 +287,8 @@ def view_resume(resume_id):
 
             import mammoth
 
-
-            # -----------------------------------------
-            # OPEN DOCX
-            # -----------------------------------------
-
             with open(
-                resume.file_path,
+                file_path,
                 "rb"
             ) as docx_file:
 
@@ -368,31 +296,24 @@ def view_resume(resume_id):
                     docx_file
                 )
 
-
-            # -----------------------------------------
-            # GET HTML
-            # -----------------------------------------
-
-            html_content = result.value
-
-
-            # -----------------------------------------
-            # SHOW DOCX PREVIEW
-            # -----------------------------------------
-
             return render_template(
                 "docx_preview.html",
                 resume_name=resume.resume_name,
-                content=html_content
+                content=result.value
             )
 
+        except ImportError:
 
-        except Exception as e:
-
-            print(
-                "DOCX preview error:",
-                e
+            flash(
+                "Please install mammoth to preview DOCX files.",
+                "error"
             )
+
+            return redirect(
+                url_for("resume.my_resumes")
+            )
+
+        except Exception:
 
             flash(
                 "Unable to preview this DOCX file.",
@@ -402,11 +323,6 @@ def view_resume(resume_id):
             return redirect(
                 url_for("resume.my_resumes")
             )
-
-
-    # =================================================
-    # UNSUPPORTED FILE
-    # =================================================
 
     flash(
         "Unsupported resume format.",
@@ -418,10 +334,6 @@ def view_resume(resume_id):
     )
 
 
-# =========================================================
-# DOWNLOAD ORIGINAL RESUME
-# =========================================================
-
 @resume_bp.route(
     "/download-resume/<int:resume_id>"
 )
@@ -432,28 +344,16 @@ def download_resume(resume_id):
             url_for("auth.login")
         )
 
-
     resume = Resume.query.filter_by(
         id=resume_id,
         user_id=session["user_id"]
     ).first_or_404()
 
-
-    if not resume.file_path:
-
-        flash(
-            "Resume file not found.",
-            "error"
-        )
-
-        return redirect(
-            url_for("resume.my_resumes")
-        )
-
-
-    if not os.path.exists(
+    file_path = get_absolute_file_path(
         resume.file_path
-    ):
+    )
+
+    if not file_path or not os.path.isfile(file_path):
 
         flash(
             "Resume file not found.",
@@ -463,18 +363,13 @@ def download_resume(resume_id):
         return redirect(
             url_for("resume.my_resumes")
         )
-
 
     return send_file(
-        resume.file_path,
+        file_path,
         as_attachment=True,
         download_name=resume.resume_name
     )
 
-
-# =========================================================
-# DELETE RESUME
-# =========================================================
 
 @resume_bp.route(
     "/delete-resume/<int:resume_id>",
@@ -487,12 +382,10 @@ def delete_resume(resume_id):
             url_for("auth.login")
         )
 
-
     resume = Resume.query.filter_by(
         id=resume_id,
         user_id=session["user_id"]
     ).first()
-
 
     if not resume:
 
@@ -505,58 +398,30 @@ def delete_resume(resume_id):
             url_for("resume.my_resumes")
         )
 
-
-    # ---------------------------------------------
-    # DELETE RELATED ANALYSES FIRST
-    # ---------------------------------------------
-
     Analysis.query.filter_by(
         resume_id=resume.id
     ).delete(
         synchronize_session=False
     )
 
-
-    # ---------------------------------------------
-    # DELETE FILE
-    # ---------------------------------------------
-
-    if resume.file_path:
-
-        if os.path.exists(
-            resume.file_path
-        ):
-
-            try:
-
-                os.remove(
-                    resume.file_path
-                )
-
-            except Exception as e:
-
-                print(
-                    "File deletion error:",
-                    e
-                )
-
-
-    # ---------------------------------------------
-    # DELETE DATABASE RECORD
-    # ---------------------------------------------
-
-    db.session.delete(
-        resume
+    file_path = get_absolute_file_path(
+        resume.file_path
     )
 
-    db.session.commit()
+    if file_path and os.path.isfile(file_path):
 
+        try:
+            os.remove(file_path)
+        except OSError:
+            pass
+
+    db.session.delete(resume)
+    db.session.commit()
 
     flash(
         "Resume deleted successfully.",
         "success"
     )
-
 
     return redirect(
         url_for("resume.my_resumes")
