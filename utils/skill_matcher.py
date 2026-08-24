@@ -1,6 +1,5 @@
 import re
 
-
 SKILLS = [
     "python",
     "java",
@@ -35,17 +34,31 @@ SKILLS = [
     "power bi",
     "tableau",
     "excel",
-    "rest api",
+    "rest api"
 ]
 
+RESUME_SECTIONS = [
+    "summary",
+    "objective",
+    "profile",
+    "experience",
+    "work experience",
+    "employment",
+    "education",
+    "skills",
+    "projects",
+    "certifications",
+    "achievements",
+    "internship",
+    "internships"
+]
 
 def extract_skills(text):
     text = text.lower()
-
     found_skills = []
 
     for skill in SKILLS:
-        pattern = r"\b" + re.escape(skill) + r"\b"
+        pattern = r"(?<!\w)" + re.escape(skill) + r"(?!\w)"
 
         if re.search(pattern, text):
             found_skills.append(skill)
@@ -54,7 +67,10 @@ def extract_skills(text):
 
 
 def extract_keywords(text):
-    words = re.findall(r"\b[a-zA-Z]{4,}\b", text.lower())
+    words = re.findall(
+        r"\b[a-zA-Z]{4,}\b",
+        text.lower()
+    )
 
     stop_words = {
         "with",
@@ -75,26 +91,90 @@ def extract_keywords(text):
         "candidate",
         "should",
         "work",
-        "team"
+        "team",
+        "role",
+        "responsibilities",
+        "skills",
+        "ability",
+        "including",
+        "preferred",
+        "knowledge",
+        "strong",
+        "good",
+        "years",
+        "develop",
+        "development",
+        "working",
+        "position",
+        "company"
     }
 
-    return set(
-        word for word in words
+    return {
+        word
+        for word in words
         if word not in stop_words
+    }
+
+
+def calculate_content_score(resume_text):
+    text = resume_text.lower().strip()
+
+    if not text:
+        return 0
+
+    words = text.split()
+    word_count = len(words)
+
+    if word_count >= 500:
+        length_score = 100
+    elif word_count >= 400:
+        length_score = 90
+    elif word_count >= 300:
+        length_score = 80
+    elif word_count >= 200:
+        length_score = 70
+    elif word_count >= 100:
+        length_score = 55
+    else:
+        length_score = 40
+
+    sections_found = 0
+
+    for section in RESUME_SECTIONS:
+        if section in text:
+            sections_found += 1
+
+    section_score = min(
+        (sections_found / 6) * 100,
+        100
+    )
+
+    content_score = (
+        length_score * 0.60
+        +
+        section_score * 0.40
+    )
+
+    return round(
+        min(content_score, 100),
+        2
     )
 
 
 def compare_skills(resume_text, job_description):
+
     resume_skills = extract_skills(resume_text)
     job_skills = extract_skills(job_description)
 
     matched_skills = [
-        skill for skill in job_skills
+        skill
+        for skill in job_skills
         if skill in resume_skills
     ]
 
     missing_skills = [
-        skill for skill in job_skills
+        skill
+        for skill in job_skills
         if skill not in resume_skills
     ]
 
@@ -108,7 +188,9 @@ def compare_skills(resume_text, job_description):
     resume_keywords = extract_keywords(resume_text)
     job_keywords = extract_keywords(job_description)
 
-    matched_keywords = resume_keywords.intersection(job_keywords)
+    matched_keywords = (
+        resume_keywords.intersection(job_keywords)
+    )
 
     if job_keywords:
         keyword_score = (
@@ -117,12 +199,36 @@ def compare_skills(resume_text, job_description):
     else:
         keyword_score = 0
 
-    content_score = 100 if len(resume_text.strip()) >= 500 else 50
+    content_score = calculate_content_score(
+        resume_text
+    )
 
     ats_score = (
         skill_score * 0.60
-        + keyword_score * 0.20
-        + content_score * 0.20
+        +
+        keyword_score * 0.20
+        +
+        content_score * 0.20
+    )
+
+    skill_score = round(
+        min(skill_score, 100),
+        1
+    )
+
+    keyword_score = round(
+        min(keyword_score, 100),
+        1
+    )
+
+    content_score = round(
+        min(content_score, 100),
+        1
+    )
+
+    ats_score = round(
+        min(ats_score, 100),
+        1
     )
 
     return {
@@ -130,8 +236,8 @@ def compare_skills(resume_text, job_description):
         "job_skills": job_skills,
         "matched_skills": matched_skills,
         "missing_skills": missing_skills,
-        "skill_score": round(skill_score, 2),
-        "keyword_score": round(keyword_score, 2),
-        "content_score": round(content_score, 2),
-        "match_percentage": round(ats_score, 2)
+        "skill_score": skill_score,
+        "keyword_score": keyword_score,
+        "content_score": content_score,
+        "match_percentage": ats_score
     }
