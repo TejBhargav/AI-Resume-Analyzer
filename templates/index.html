@@ -1,55 +1,126 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>AI Resume Analyzer</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/style.css') }}"
+    >
 </head>
+
 <body>
 
+    <!-- HOME PAGE HEADER -->
     <nav>
-        <div class="logo">AI Resume Analyzer</div>
+
+        <div class="logo-container">
+
+            <img
+                src="{{ url_for('static', filename='images/logo.png') }}"
+                alt="AI Resume Analyzer"
+                class="header-logo"
+            >
+
+            <div class="logo">
+                AI Resume Analyzer
+            </div>
+
+        </div>
 
         <div class="nav-links">
-            <a href="/login">Login</a>
-            <a href="/register">Register</a>
+
+            <a href="{{ url_for('home') }}">
+                Home
+            </a>
+
+            <a href="{{ url_for('auth.login') }}">
+                Login
+            </a>
+
+            <a href="{{ url_for('auth.register') }}">
+                Register
+            </a>
+
         </div>
+
     </nav>
 
+
+    <!-- MAIN CONTENT -->
     <main>
+
+        <!-- HERO SECTION -->
         <section class="hero">
-            <h1>Analyze Your Resume with AI</h1>
+
+            <h1>
+                Analyze Your Resume with AI
+            </h1>
 
             <p>
                 Compare your resume with a job description,
                 identify missing skills, and improve your ATS score.
             </p>
 
-            <a href="/upload" class="button">
+            <a
+                href="{{ url_for('resume.upload_resume') }}"
+                class="button"
+            >
                 Analyze My Resume
             </a>
+
         </section>
 
+
+        <!-- FEATURES -->
         <section class="features">
 
             <div class="feature">
-                <h2>ATS Score</h2>
-                <p>Check how well your resume matches a job description.</p>
+
+                <h2>
+                    ATS Score
+                </h2>
+
+                <p>
+                    Check how well your resume matches a job description.
+                </p>
+
             </div>
 
-            <div class="feature">
-                <h2>Skill Analysis</h2>
-                <p>Identify matched and missing skills from your resume.</p>
-            </div>
 
             <div class="feature">
-                <h2>AI Suggestions</h2>
-                <p>Get intelligent recommendations to improve your resume.</p>
+
+                <h2>
+                    Skill Analysis
+                </h2>
+
+                <p>
+                    Identify matched and missing skills from your resume.
+                </p>
+
+            </div>
+
+
+            <div class="feature">
+
+                <h2>
+                    AI Suggestions
+                </h2>
+
+                <p>
+                    Get intelligent recommendations to improve your resume.
+                </p>
+
             </div>
 
         </section>
+
     </main>
 
 </body>
+
 </html>

@@ -1,78 +1,79 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Job Description</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-</head>
-<body>
+{% extends "base.html" %}
 
-    <nav>
-        <div class="logo">AI Resume Analyzer</div>
+{% block content %}
 
-        <div class="nav-links">
-            <a href="/dashboard">Dashboard</a>
-            <a href="/logout">Logout</a>
-        </div>
-    </nav>
+<div class="job-description-container">
 
-    <main>
+    <div class="job-page-header">
+        <h1>Analyze Your Resume</h1>
+        <p>Select a resume and enter the job description.</p>
+    </div>
 
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                <div class="flash-container form-message">
-                    {% for category, message in messages %}
-                        <div class="flash {{ category }}">
-                            {{ message }}
-                        </div>
-                    {% endfor %}
-                </div>
-            {% endif %}
-        {% endwith %}
+    <form
+        method="POST"
+        action="{{ url_for('analysis.job_description') }}"
+        class="job-form"
+    >
 
-        <section class="form-container">
+        <label for="resume_id">
+            Select Resume
+        </label>
 
-            <h1>Job Description</h1>
+        <select
+            id="resume_id"
+            name="resume_id"
+            required
+        >
+            <option value="">
+                Select a resume
+            </option>
 
-            <form method="POST">
+            {% for resume in resumes %}
+                <option value="{{ resume.id }}">
+                    {{ resume.resume_name }}
+                </option>
+            {% endfor %}
+        </select>
 
-                <label>Company</label>
+        <label for="company">
+            Company
+        </label>
 
-                <input
-                    type="text"
-                    name="company"
-                    placeholder="Enter company name"
-                    required
-                >
+        <input
+            type="text"
+            id="company"
+            name="company"
+            placeholder="Company name"
+        >
 
-                <label>Job Role</label>
+        <label for="role">
+            Job Role
+        </label>
 
-                <input
-                    type="text"
-                    name="role"
-                    placeholder="Enter job role"
-                    required
-                >
+        <input
+            type="text"
+            id="role"
+            name="role"
+            placeholder="Example: Python Developer"
+        >
 
-                <label>Job Description</label>
+        <label for="description">
+            Job Description
+        </label>
 
-                <textarea
-                    name="description"
-                    rows="12"
-                    placeholder="Paste the complete job description here"
-                    required
-                ></textarea>
+        <textarea
+            id="description"
+            name="description"
+            placeholder="Paste the complete job description here..."
+            required
+        ></textarea>
 
-                <button type="submit">
-                    Save Job Description
-                </button>
+        <button type="submit">
+            Analyze Resume
+        </button>
 
-            </form>
+    </form>
 
-        </section>
+</div>
 
-    </main>
-
-</body>
-</html>
+{% endblock %}

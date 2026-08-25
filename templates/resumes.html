@@ -1,60 +1,10 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "base.html" %}
 
-<head>
+{% block title %}
+My Resumes - AI Resume Analyzer
+{% endblock %}
 
-    <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
-    <title>
-        My Resumes - AI Resume Analyzer
-    </title>
-
-    <link
-        rel="stylesheet"
-        href="{{ url_for('static', filename='css/style.css') }}"
-    >
-
-</head>
-
-<body>
-
-<nav>
-
-    <div class="logo">
-        AI Resume Analyzer
-    </div>
-
-    <div class="nav-links">
-
-        <a href="{{ url_for('auth.dashboard') }}">
-            Dashboard
-        </a>
-
-        <a href="{{ url_for('resume.my_resumes') }}">
-            My Resumes
-        </a>
-
-        <a href="{{ url_for('resume.upload_resume') }}">
-            Upload Resume
-        </a>
-
-        <a href="{{ url_for('analysis.history') }}">
-            History
-        </a>
-
-        <a href="{{ url_for('auth.logout') }}">
-            Logout
-        </a>
-
-    </div>
-
-</nav>
-
+{% block content %}
 
 <main class="resumes-page">
 
@@ -80,27 +30,6 @@
         </a>
 
     </div>
-
-
-    {% with messages = get_flashed_messages(with_categories=true) %}
-
-        {% if messages %}
-
-            <div class="flash-container">
-
-                {% for category, message in messages %}
-
-                    <div class="flash {{ category }}">
-                        {{ message }}
-                    </div>
-
-                {% endfor %}
-
-            </div>
-
-        {% endif %}
-
-    {% endwith %}
 
 
     {% if resumes %}
@@ -203,6 +132,4 @@
 
 </main>
 
-</body>
-
-</html>
+{% endblock %}

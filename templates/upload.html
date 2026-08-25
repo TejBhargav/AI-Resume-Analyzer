@@ -1,557 +1,69 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "base.html" %}
 
-<head>
+{% block title %}
+Upload Resume - AI Resume Analyzer
+{% endblock %}
 
-    <meta charset="UTF-8">
+{% block content %}
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+<main class="upload-page">
 
-    <title>Upload Resume - AI Resume Analyzer</title>
+    <div class="page-header">
 
-    <link
-        rel="preconnect"
-        href="https://fonts.googleapis.com"
-    >
-
-    <link
-        rel="preconnect"
-        href="https://fonts.gstatic.com"
-        crossorigin
-    >
-
-    <link
-        href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
-        rel="stylesheet"
-    >
-
-    <link
-        rel="stylesheet"
-        href="{{ url_for('static', filename='css/style.css') }}"
-    >
-
-    <style>
-
-        body {
-            font-family: "DM Sans", sans-serif;
-        }
-
-        h1,
-        h2,
-        .logo {
-            font-family: "Plus Jakarta Sans", sans-serif;
-        }
-
-        .upload-page {
-            width: 90%;
-            max-width: 850px;
-            margin: 50px auto;
-        }
-
-        .upload-header {
-            margin-bottom: 25px;
-        }
-
-        .upload-header h1 {
-            font-size: 36px;
-            font-weight: 800;
-            letter-spacing: -0.04em;
-            margin-bottom: 8px;
-        }
-
-        .upload-header p {
-            color: #64748b;
-            font-size: 14px;
-            font-weight: 500;
-        }
-
-        .upload-card {
-            background: #ffffff;
-            border: 1px solid #e2e8f0;
-            border-radius: 22px;
-            padding: 35px;
-            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.06);
-        }
-
-        .upload-area {
-            position: relative;
-
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-
-            min-height: 280px;
-
-            padding: 30px;
-
-            border: 2px dashed #c7d2fe;
-            border-radius: 18px;
-
-            background: #f8faff;
-
-            text-align: center;
-
-            transition: all 0.3s ease;
-        }
-
-        .upload-area:hover {
-            border-color: #818cf8;
-            background: #f5f3ff;
-        }
-
-        .upload-icon {
-            width: 70px;
-            height: 70px;
-
-            display: flex;
-            align-items: center;
-            justify-content: center;
-
-            margin-bottom: 18px;
-
-            border-radius: 20px;
-
-            background: #eef2ff;
-
-            font-size: 32px;
-        }
-
-        .upload-area h2 {
-            font-size: 20px;
-            font-weight: 800;
-            letter-spacing: -0.03em;
-            margin-bottom: 7px;
-        }
-
-        .upload-area p {
-            color: #64748b;
-            font-size: 13px;
-            margin-bottom: 18px;
-        }
-
-        .file-input-wrapper {
-            position: relative;
-            display: inline-block;
-        }
-
-        .file-input-wrapper input[type="file"] {
-            position: absolute;
-
-            width: 1px;
-            height: 1px;
-
-            opacity: 0;
-        }
-
-        .choose-file {
-            display: inline-flex;
-
-            align-items: center;
-            justify-content: center;
-
-            padding: 11px 20px;
-
-            border-radius: 10px;
-
-            background: #6366f1;
-            color: #ffffff;
-
-            font-size: 13px;
-            font-weight: 700;
-
-            cursor: pointer;
-
-            transition: all 0.25s ease;
-        }
-
-        .choose-file:hover {
-            background: #4f46e5;
-
-            transform: translateY(-2px);
-
-            box-shadow:
-                0 8px 18px rgba(99, 102, 241, 0.2);
-        }
-
-        .selected-file {
-            display: none;
-
-            margin-top: 16px;
-
-            padding: 10px 14px;
-
-            border-radius: 10px;
-
-            background: #ecfdf5;
-
-            border: 1px solid #a7f3d0;
-
-            color: #047857;
-
-            font-size: 12px;
-            font-weight: 700;
-        }
-
-        .file-info {
-            display: flex;
-
-            justify-content: center;
-
-            gap: 10px;
-
-            margin-top: 20px;
-        }
-
-        .file-type {
-            padding: 7px 12px;
-
-            border-radius: 20px;
-
-            background: #eef2ff;
-            color: #4f46e5;
-
-            font-size: 11px;
-            font-weight: 700;
-        }
-
-        .upload-submit {
-            width: 100%;
-
-            margin-top: 22px;
-
-            padding: 14px 18px;
-
-            border: none;
-            border-radius: 11px;
-
-            background: linear-gradient(
-                135deg,
-                #6366f1,
-                #8b5cf6
-            );
-
-            color: #ffffff;
-
-            font-family: "DM Sans", sans-serif;
-
-            font-size: 14px;
-            font-weight: 700;
-
-            cursor: pointer;
-
-            transition: all 0.25s ease;
-        }
-
-        .upload-submit:hover {
-            transform: translateY(-2px);
-
-            box-shadow:
-                0 10px 22px rgba(99, 102, 241, 0.2);
-        }
-
-        .upload-submit:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
-
-        .upload-note {
-            margin-top: 18px;
-
-            text-align: center;
-
-            color: #94a3b8;
-
-            font-size: 11px;
-            font-weight: 500;
-        }
-
-        .flash-container {
-            margin-bottom: 20px;
-        }
-
-        .flash {
-            padding: 12px 15px;
-
-            border-radius: 10px;
-
-            font-size: 13px;
-            font-weight: 600;
-
-            margin-bottom: 8px;
-        }
-
-        .flash.success {
-            background: #ecfdf5;
-            color: #047857;
-            border: 1px solid #a7f3d0;
-        }
-
-        .flash.error {
-            background: #fff1f2;
-            color: #be123c;
-            border: 1px solid #fecdd3;
-        }
-
-        @media (max-width: 600px) {
-
-            .upload-page {
-                width: 92%;
-                margin: 35px auto;
-            }
-
-            .upload-header h1 {
-                font-size: 30px;
-            }
-
-            .upload-card {
-                padding: 20px;
-            }
-
-            .upload-area {
-                min-height: 240px;
-                padding: 20px;
-            }
-
-        }
-
-    </style>
-
-</head>
-
-
-<body>
-
-
-    <nav>
-
-        <div class="logo">
-            AI Resume Analyzer
-        </div>
-
-        <div class="nav-links">
-
-            <a href="/dashboard">
-                Dashboard
-            </a>
-
-            <a href="/my-resumes">
-                My Resumes
-            </a>
-
-            <a href="/upload">
-                Upload Resume
-            </a>
-
-            <a href="/history">
-                History
-            </a>
-
-            <a href="/logout">
-                Logout
-            </a>
-
-        </div>
-
-    </nav>
-
-
-    <main class="upload-page">
-
-
-        {% with messages = get_flashed_messages(with_categories=true) %}
-
-            {% if messages %}
-
-                <div class="flash-container">
-
-                    {% for category, message in messages %}
-
-                        <div class="flash {{ category }}">
-                            {{ message }}
-                        </div>
-
-                    {% endfor %}
-
-                </div>
-
-            {% endif %}
-
-        {% endwith %}
-
-
-        <div class="upload-header">
+        <div>
 
             <h1>
-                Upload Your Resume
+                Upload Resume
             </h1>
 
             <p>
-                Upload your resume to get an AI-powered ATS analysis.
+                Upload your PDF or DOCX resume.
             </p>
 
         </div>
 
-
-        <section class="upload-card">
-
-
-            <form
-                method="POST"
-                enctype="multipart/form-data"
-                id="uploadForm"
-            >
+    </div>
 
 
-                <div class="upload-area">
+    <section class="upload-card">
 
+        <form
+            method="POST"
+            enctype="multipart/form-data"
+        >
 
-                    <div class="upload-icon">
-                        📄
-                    </div>
+            <div class="form-group">
 
+                <label for="resume">
+                    Select Resume
+                </label>
 
-                    <h2>
-                        Upload your resume
-                    </h2>
-
-
-                    <p>
-                        Choose a PDF or DOCX file from your computer.
-                    </p>
-
-
-                    <div class="file-input-wrapper">
-
-                        <input
-                            type="file"
-                            name="resume"
-                            id="resume"
-                            accept=".pdf,.docx"
-                            required
-                        >
-
-                        <label
-                            for="resume"
-                            class="choose-file"
-                        >
-                            Choose Resume
-                        </label>
-
-                    </div>
-
-
-                    <div
-                        class="selected-file"
-                        id="selectedFile"
-                    ></div>
-
-
-                    <div class="file-info">
-
-                        <span class="file-type">
-                            PDF
-                        </span>
-
-                        <span class="file-type">
-                            DOCX
-                        </span>
-
-                        <span class="file-type">
-                            Max 5 MB
-                        </span>
-
-                    </div>
-
-
-                </div>
-
-
-                <button
-                    type="submit"
-                    class="upload-submit"
-                    id="uploadButton"
+                <input
+                    type="file"
+                    id="resume"
+                    name="resume"
+                    accept=".pdf,.docx"
+                    required
                 >
-                    Upload Resume
-                </button>
+
+                <small>
+                    Maximum file size: 5 MB
+                </small>
+
+            </div>
 
 
-                <div class="upload-note">
-                    Your resume will be processed for ATS and AI analysis.
-                </div>
+            <button
+                type="submit"
+                class="primary-button"
+            >
+                Upload Resume
+            </button>
 
+        </form>
 
-            </form>
+    </section>
 
+</main>
 
-        </section>
-
-
-    </main>
-
-
-    <script>
-
-        const resumeInput =
-            document.getElementById("resume");
-
-        const selectedFile =
-            document.getElementById("selectedFile");
-
-        const uploadForm =
-            document.getElementById("uploadForm");
-
-        const uploadButton =
-            document.getElementById("uploadButton");
-
-
-        resumeInput.addEventListener(
-            "change",
-            function() {
-
-                if (this.files.length > 0) {
-
-                    const file =
-                        this.files[0];
-
-                    selectedFile.textContent =
-                        "✓ " + file.name;
-
-                    selectedFile.style.display =
-                        "block";
-
-                } else {
-
-                    selectedFile.style.display =
-                        "none";
-
-                }
-
-            }
-        );
-
-
-        uploadForm.addEventListener(
-            "submit",
-            function() {
-
-                uploadButton.disabled =
-                    true;
-
-                uploadButton.textContent =
-                    "Uploading...";
-
-            }
-        );
-
-    </script>
-
-
-</body>
-
-</html>
+{% endblock %}

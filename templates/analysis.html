@@ -1,60 +1,10 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "base.html" %}
 
-<head>
+{% block title %}
+Resume Analysis - AI Resume Analyzer
+{% endblock %}
 
-    <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
-    <title>
-        Resume Analysis - AI Resume Analyzer
-    </title>
-
-    <link
-        rel="stylesheet"
-        href="{{ url_for('static', filename='css/style.css') }}"
-    >
-
-</head>
-
-<body>
-
-<nav>
-
-    <div class="logo">
-        AI Resume Analyzer
-    </div>
-
-    <div class="nav-links">
-
-        <a href="{{ url_for('auth.dashboard') }}">
-            Dashboard
-        </a>
-
-        <a href="{{ url_for('resume.my_resumes') }}">
-            My Resumes
-        </a>
-
-        <a href="{{ url_for('resume.upload_resume') }}">
-            Upload Resume
-        </a>
-
-        <a href="{{ url_for('analysis.history') }}">
-            History
-        </a>
-
-        <a href="{{ url_for('auth.logout') }}">
-            Logout
-        </a>
-
-    </div>
-
-</nav>
-
+{% block content %}
 
 <main class="analysis-page">
 
@@ -76,7 +26,7 @@
             href="{{ url_for('analysis.history') }}"
             class="secondary-button"
         >
-            Back to History
+            History
         </a>
 
     </div>
@@ -112,44 +62,35 @@
     </section>
 
 
-    <section class="ats-score-card">
+    <section class="analysis-score-section">
 
-        <div class="ats-score-circle">
+        <div class="analysis-score-card">
 
-            <span>
-                {{ ats_score }}%
-            </span>
+            <div class="score-circle">
 
-        </div>
+                <span>
+                    {{ ats_score }}%
+                </span>
 
-        <div>
+            </div>
 
             <h2>
-                Overall ATS Score
+                ATS Score
             </h2>
 
             <p>
-                Overall compatibility between your resume
-                and the selected job description.
+                Overall resume compatibility.
             </p>
 
         </div>
 
-    </section>
 
+        <div class="score-breakdown">
 
-    <section class="ats-breakdown">
-
-        <h2>
-            ATS Score Breakdown
-        </h2>
-
-        <div class="score-item">
-
-            <div class="score-label">
+            <div class="score-item">
 
                 <span>
-                    Skills Match
+                    Skill Match
                 </span>
 
                 <strong>
@@ -158,21 +99,8 @@
 
             </div>
 
-            <div class="progress-bar">
 
-                <div
-                    class="progress-fill"
-                    data-score="{{ skill_score }}"
-                ></div>
-
-            </div>
-
-        </div>
-
-
-        <div class="score-item">
-
-            <div class="score-label">
+            <div class="score-item">
 
                 <span>
                     Keyword Match
@@ -184,21 +112,8 @@
 
             </div>
 
-            <div class="progress-bar">
 
-                <div
-                    class="progress-fill"
-                    data-score="{{ keyword_score }}"
-                ></div>
-
-            </div>
-
-        </div>
-
-
-        <div class="score-item">
-
-            <div class="score-label">
+            <div class="score-item">
 
                 <span>
                     Content Quality
@@ -210,23 +125,14 @@
 
             </div>
 
-            <div class="progress-bar">
-
-                <div
-                    class="progress-fill"
-                    data-score="{{ content_score }}"
-                ></div>
-
-            </div>
-
         </div>
 
     </section>
 
 
-    <section class="details-skills-grid">
+    <section class="skills-grid">
 
-        <div class="details-skill-card matched-details">
+        <div class="skill-card matched-details">
 
             <h2>
                 ✓ Matched Skills
@@ -234,7 +140,7 @@
 
             {% if result.matched_skills %}
 
-                <div class="details-skill-list">
+                <div class="skill-list">
 
                     {% for skill in result.matched_skills %}
 
@@ -257,15 +163,15 @@
         </div>
 
 
-        <div class="details-skill-card missing-details">
+        <div class="skill-card missing-details">
 
             <h2>
-                ✕ Missing Skills
+                + Missing Skills
             </h2>
 
             {% if result.missing_skills %}
 
-                <div class="details-skill-list">
+                <div class="skill-list">
 
                     {% for skill in result.missing_skills %}
 
@@ -299,133 +205,136 @@
             </h2>
 
             <p>
-                AI-generated recommendations based on your resume
-                and the selected job description.
+                Personalized recommendations based on your resume and job description.
             </p>
 
         </div>
 
 
-        {% if parsed_feedback.summary %}
+        <div class="ai-feedback">
 
-            <div class="feedback-section">
+            {% if parsed_feedback.summary %}
 
-                <h3>
-                    Summary
-                </h3>
+                <div class="feedback-section">
 
-                <p>
-                    {{ parsed_feedback.summary }}
-                </p>
+                    <h3>
+                        SUMMARY
+                    </h3>
 
-            </div>
+                    <p>
+                        {{ parsed_feedback.summary }}
+                    </p>
 
-        {% endif %}
+                </div>
 
-
-        {% if parsed_feedback.strengths %}
-
-            <div class="feedback-section">
-
-                <h3>
-                    Strengths
-                </h3>
-
-                <ul>
-
-                    {% for item in parsed_feedback.strengths %}
-
-                        <li>
-                            {{ item }}
-                        </li>
-
-                    {% endfor %}
-
-                </ul>
-
-            </div>
-
-        {% endif %}
+            {% endif %}
 
 
-        {% if parsed_feedback.missing_skills %}
+            {% if parsed_feedback.strengths %}
 
-            <div class="feedback-section">
+                <div class="feedback-section">
 
-                <h3>
-                    Missing Skills
-                </h3>
+                    <h3>
+                        STRENGTHS
+                    </h3>
 
-                <ul>
+                    <ul>
 
-                    {% for item in parsed_feedback.missing_skills %}
+                        {% for item in parsed_feedback.strengths %}
 
-                        <li>
-                            {{ item }}
-                        </li>
+                            <li>
+                                {{ item }}
+                            </li>
 
-                    {% endfor %}
+                        {% endfor %}
 
-                </ul>
+                    </ul>
 
-            </div>
+                </div>
 
-        {% endif %}
-
-
-        {% if parsed_feedback.improvements %}
-
-            <div class="feedback-section">
-
-                <h3>
-                    Resume Improvements
-                </h3>
-
-                <ul>
-
-                    {% for item in parsed_feedback.improvements %}
-
-                        <li>
-                            {{ item }}
-                        </li>
-
-                    {% endfor %}
-
-                </ul>
-
-            </div>
-
-        {% endif %}
+            {% endif %}
 
 
-        {% if parsed_feedback.ats_recommendations %}
+            {% if parsed_feedback.missing_skills %}
 
-            <div class="feedback-section">
+                <div class="feedback-section">
 
-                <h3>
-                    ATS Recommendations
-                </h3>
+                    <h3>
+                        MISSING SKILLS
+                    </h3>
 
-                <ul>
+                    <ul>
 
-                    {% for item in parsed_feedback.ats_recommendations %}
+                        {% for item in parsed_feedback.missing_skills %}
 
-                        <li>
-                            {{ item }}
-                        </li>
+                            <li>
+                                {{ item }}
+                            </li>
 
-                    {% endfor %}
+                        {% endfor %}
 
-                </ul>
+                    </ul>
 
-            </div>
+                </div>
 
-        {% endif %}
+            {% endif %}
+
+
+            {% if parsed_feedback.improvements %}
+
+                <div class="feedback-section">
+
+                    <h3>
+                        RESUME IMPROVEMENTS
+                    </h3>
+
+                    <ul>
+
+                        {% for item in parsed_feedback.improvements %}
+
+                            <li>
+                                {{ item }}
+                            </li>
+
+                        {% endfor %}
+
+                    </ul>
+
+                </div>
+
+            {% endif %}
+
+
+            {% if parsed_feedback.ats_recommendations %}
+
+                <div class="feedback-section">
+
+                    <h3>
+                        ATS RECOMMENDATIONS
+                    </h3>
+
+                    <ul>
+
+                        {% for item in parsed_feedback.ats_recommendations %}
+
+                            <li>
+                                {{ item }}
+                            </li>
+
+                        {% endfor %}
+
+                    </ul>
+
+                </div>
+
+            {% endif %}
+
+        </div>
 
     </section>
 
 
-    <div class="details-actions">
+    <div class="analysis-actions">
 
         <a
             href="{{ url_for('analysis.history') }}"
@@ -445,13 +354,4 @@
 
 </main>
 
-<script>
-    document.querySelectorAll('.progress-fill').forEach(function (bar) {
-        const score = Number(bar.dataset.score || 0);
-        bar.style.width = score + '%';
-    });
-</script>
-
-</body>
-
-</html>
+{% endblock %}
