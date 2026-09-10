@@ -9,17 +9,13 @@ Analysis History - AI Resume Analyzer
 <main class="history-page">
 
     <div class="page-header">
-
         <div>
-
             <h1>
                 Analysis History
             </h1>
-
             <p>
                 View your previous resume analysis results.
             </p>
-
         </div>
 
         <a
@@ -28,9 +24,7 @@ Analysis History - AI Resume Analyzer
         >
             New Analysis
         </a>
-
     </div>
-
 
     {% if analyses %}
 
@@ -58,20 +52,36 @@ Analysis History - AI Resume Analyzer
 
                     </div>
 
+                    <div class="history-score-row">
 
-                    <div class="history-score">
+                        {% if item.ats_score >= 70 %}
 
-                        {{ item.ats_score }}%
+                            <div class="history-score score-good">
+                                {{ item.ats_score }}%
+                            </div>
+
+                        {% elif item.ats_score >= 40 %}
+
+                            <div class="history-score score-average">
+                                {{ item.ats_score }}%
+                            </div>
+
+                        {% else %}
+
+                            <div class="history-score score-poor">
+                                {{ item.ats_score }}%
+                            </div>
+
+                        {% endif %}
+
+                        <a
+                            href="{{ url_for('analysis.analysis_details', analysis_id=item.id) }}"
+                            class="view-button"
+                        >
+                            View Analysis
+                        </a>
 
                     </div>
-
-
-                    <a
-                        href="{{ url_for('analysis.analysis_details', analysis_id=item.id) }}"
-                        class="view-button"
-                    >
-                        View Analysis
-                    </a>
 
                 </div>
 
